@@ -27,17 +27,17 @@ class NameNode:
             self.file_table[sdfs_name] = {'version' : 0, 'replicas' : set(target_nodes)}
         else:
             self.file_table[sdfs_name]['version'] += 1
-        return ["127.0.0.1"]
+        return ["fa22-cs425-2205.cs.illinois.edu"]
 
     def get_file(self, sdfs_name):
         if sdfs_name in self.file_table:
-            return "127.0.0.1"
+            return "fa22-cs425-2205.cs.illinois.edu"
         else:
             print("No such file!")
             return
 
     def delete_file(self, sdfs_name):
-        addresses = ["127.0.0.1"]
+        addresses = ["fa22-cs425-2205.cs.illinois.edu"]
         for address in addresses:
             c = zerorpc.Client()
             c.connect("tcp://" + address + ":4242")
