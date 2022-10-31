@@ -37,14 +37,17 @@ class NameNode:
             return
 
     def delete_file(self, sdfs_name):
-        self.data_node.connect("tcp://127.0.0.1:4242")
-        self.data_node.delete_file(sdfs_name)
+        addresses = ["127.0.0.1"]
+        for address in addresses:
+            c = zerorpc.Client()
+            c.connect("tcp://" + address + ":4242")
+            c.delete_file(sdfs_name)
 
     def ls(self, sdfs_name):
-        pass
+        return str(self.file_table[sdfs_name])
 
     def store(self, data_node_id):
-        pass
+        return str(self.node_table[data_node_id])
     
 def run_name_node():
     s = zerorpc.Server(NameNode())

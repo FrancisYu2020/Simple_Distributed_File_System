@@ -56,7 +56,28 @@ class Client:
         c.close()
         f = open(local_filename, 'w')
         f.write(content)
-        
+    
+    def delete(self, sdfs_filename):
+        c = zerorpc.Client()
+        c.connect("tcp://127.0.0.1:4241")
+        c.delete_file(sdfs_filename)
+        c.close()
+    
+    def ls(self, sdfs_filename):
+        c = zerorpc.Client()
+        c.connect("tcp://127.0.0.1:4241")
+        print(c.ls(sdfs_filename))
+        c.close()
+
+    def store(self, data_node_id):
+        c = zerorpc.Client()
+        c.connect("tcp://127.0.0.1:4241")
+        c.store(data_node_id)
+        c.close()
+
+# test part
 c = Client()
 c.put("client.py", "test")
 c.get("test", "data_node_cpy")
+c.ls("test")
+c.delete("test")
