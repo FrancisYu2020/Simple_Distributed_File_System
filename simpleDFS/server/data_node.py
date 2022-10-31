@@ -7,7 +7,7 @@ class DataNode:
 
     def put_file(self, sdfs_filename, content):
         filepath = os.path.join(os.getcwd(), sdfs_filename)
-        f = open(filepath, 'w')
+        f = open(filepath, "wb")
         f.write(content)
         f.close()
 
@@ -16,7 +16,7 @@ class DataNode:
         if not os.path.isfile(filepath):
             print("No file")
             return
-        return open(filepath).read()
+        return open(filepath, "rb").read()
 
     def delete_file(self, sdfs_filename):
         filepath = os.path.join(os.getcwd(), sdfs_filename)
