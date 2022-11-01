@@ -79,6 +79,7 @@ class NameNode:
 
 
     def put_file(self, sdfs_name):
+        print("Receive put request")
         if sdfs_name in self.ft.files:
             self.ft.update_version(self.ft.files[sdfs_name])
             return self.ft.files[sdfs_name].replicas
@@ -89,13 +90,15 @@ class NameNode:
             return replicas
 
     def get_file(self, sdfs_name):
-        if sdfs_name in self.files:
+        print("Receive get request")
+        if sdfs_name in self.ft.files:
             return self.ft.files[sdfs_name].replicas[0]
         else:
             print("No such file!")
             return
 
     def delete_file(self, sdfs_name):
+        print("Receive delete request")
         replicas = self.ft.files[sdfs_name].replicas
         for replica in replicas:
             c = zerorpc.Client()
