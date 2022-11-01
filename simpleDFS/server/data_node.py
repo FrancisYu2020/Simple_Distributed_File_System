@@ -10,7 +10,7 @@ class DataNode:
 
     def put_file(self, sdfs_filename, content, replicas):
         print("Try to put file: " + sdfs_filename)
-        filename = sdfs_filename + ",v" + (self.file_info[sdfs_filename] + 1)
+        filename = sdfs_filename + ",v" + str(self.file_info[sdfs_filename] + 1)
         filepath = os.path.join(os.getcwd(), filename)
         f = open(filepath, "wb")
         f.write(content)
@@ -24,7 +24,7 @@ class DataNode:
 
     def get_file(self, sdfs_filename):
         print("Try to get file: " + sdfs_filename)
-        filepath = os.path.join(os.getcwd(), sdfs_filename + ",v" + self.file_info[sdfs_filename])
+        filepath = os.path.join(os.getcwd(), sdfs_filename + ",v" + str(self.file_info[sdfs_filename]))
         if not os.path.isfile(filepath):
             print("No file")
             return
@@ -33,7 +33,7 @@ class DataNode:
     def delete_file(self, sdfs_filename):
         print("Try to delete file: " + sdfs_filename)
         for v in range(1, self.file_info[sdfs_filename] + 1):
-            filepath = os.path.join(os.getcwd(), sdfs_filename + ",v" + v)
+            filepath = os.path.join(os.getcwd(), sdfs_filename + ",v" + str(v))
             os.remove(filepath)
 
 def run_data_node():
