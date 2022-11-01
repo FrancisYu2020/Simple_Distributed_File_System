@@ -2,7 +2,6 @@ import zerorpc
 import os
 
 DATA_NODE_PORT = "4242"
-INTER_DATA_NODE_PORT = "4243"
 
 class DataNode:
     def __init__(self):
@@ -16,7 +15,7 @@ class DataNode:
         f.close()
         if replicas:
             c = zerorpc.Client()
-            c.connect("tcp://" + replicas[0] + ":" + INTER_DATA_NODE_PORT)
+            c.connect("tcp://" + replicas[0] + ":" + DATA_NODE_PORT)
             c.put_file(sdfs_filename, content, replicas[1:])
             c.close()
 
