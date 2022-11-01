@@ -97,12 +97,12 @@ class NameNode:
             replicas = self.__hash_sdfs_name(sdfs_name)
             self.nt.insert_file(sdfs_name, replicas)
             self.ft.insert_file(sdfs_name, replicas)
-        return self.ft.files[sdfs_name].replicas
+        return list(self.ft.files[sdfs_name].replicas)
 
     def get_file(self, sdfs_name):
         print("Receive get request")
         if sdfs_name in self.ft.files:
-            return self.ft.files[sdfs_name].replicas[0]
+            return list(self.ft.files[sdfs_name].replicas)[0]
         else:
             print("No such file!")
             return
