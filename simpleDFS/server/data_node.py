@@ -8,14 +8,14 @@ class DataNode:
         pass
 
     def put_file(self, sdfs_filename, content):
-        print("Try to put file: ", + sdfs_filename)
+        print("Try to put file: " + sdfs_filename)
         filepath = os.path.join(os.getcwd(), sdfs_filename)
         f = open(filepath, "wb")
         f.write(content)
         f.close()
 
     def get_file(self, sdfs_filename):
-        print("Try to get file: ", + sdfs_filename)
+        print("Try to get file: " + sdfs_filename)
         filepath = os.path.join(os.getcwd(), sdfs_filename)
         if not os.path.isfile(filepath):
             print("No file")
@@ -23,7 +23,7 @@ class DataNode:
         return open(filepath, "rb").read()
 
     def delete_file(self, sdfs_filename):
-        print("Try to delete file: ", + sdfs_filename)
+        print("Try to delete file: " + sdfs_filename)
         filepath = os.path.join(os.getcwd(), sdfs_filename)
         os.remove(filepath)
 
