@@ -12,33 +12,33 @@ class State(Enum):
     WORK = 1
     FAIL = 2
 
-'''
-class File
-contains replicas
-'''
 class File:
+    '''
+    class File
+    contains replicas
+    '''
     def __init__(self, filename):
         self.filename = filename
-        self.replicas = []
+        self.replicas = set()
     
     def __repr__(self):
         return "{ \n\t\"filename\" : \"" + self.filename + "\"\n\t\"replicas\" : " + str(self.replicas) + "\n}"
 
-'''
-class FileTable
-contains multiple files
-'''
 class FileTable:
+    '''
+    class FileTable
+    contains multiple files
+    '''
     def __init__(self):
         self.files = {} # name -> File
     
     def insert_file(self, filename, replicas):
         f = File(filename)
-        f.replicas = replicas
+        f.replicas = set(replicas)
         self.files[filename] = f    
     
     def update_replicas(self, filename, replicas):
-        self.files[filename].replicas = replicas
+        self.files[filename].replicas = set(replicas)
     
     def delete_file(self, filename):
         if filename not in self.files:
@@ -46,14 +46,13 @@ class FileTable:
             return
         del self.files[filename]
 
-'''
-class NodeTable
-contains nodes and the files in the node
-'''
 class NodeTable:
+    '''
+    class NodeTable
+    contains nodes and the files in the node
+    '''
     def __init__(self):
         self.nodes = defaultdict(set)
-        self.states = {}
     
     def insert_file(self, filename, replicas):
         for r in replicas:
@@ -64,10 +63,10 @@ class NodeTable:
             if filename in self.nodes[node]:
                 self.nodes[node].remove(filename)
 
-'''
-class NameNode
-'''
 class NameNode:
+    '''
+    class NameNode
+    '''
     def __init__(self): 
         self.ft = FileTable()
         self.nt = NodeTable()
@@ -124,6 +123,22 @@ class NameNode:
 
     def store(self, data_node):
         return repr(self.nt[data_node])
+
+    def rreplcia(self, fail_node, new_replica):
+        files = self.nt.nodes[fail_node]
+        for file in files:
+            self.ft.files[file].replicas.remove(fail_node)
+            for replica in self.ft.files[file].replicas:
+                if replica != fail_node:
+                    c = zerorpc.Client()
+                    c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
+                    c.build_replica(file, new_replica)
+                    c.close()
+                    self.ft.files[file].replicas.add(new_replica)
+                    break
+        del self.nt.nodes[fail_node]
+            
+
     
 def run_name_node():
     s = zerorpc.Server(NameNode())

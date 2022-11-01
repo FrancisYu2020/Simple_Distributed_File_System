@@ -35,6 +35,23 @@ class DataNode:
         for v in range(1, self.file_info[sdfs_filename] + 1):
             filepath = os.path.join(os.getcwd(), sdfs_filename + ",v" + str(v))
             os.remove(filepath)
+    
+    def build_replica(self, sdfs_filename, replica):
+        for v in range(1, self.file_info[sdfs_filename] + 1):
+            filepath = os.path.join(os.getcwd(), sdfs_filename + ",v" + str(v))
+            content = open(filepath, "rb").read()
+            c = zerorpc.Client()
+            c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
+            c.rreplica(sdfs_filename, content, v)
+            c.close()
+    
+    def rreplica(self, sdfs_filename, content, v):
+        filename = sdfs_filename + ",v" + str(v)
+        filepath = os.path.join(os.getcwd(), filename)
+        f = open(filepath, "wb")
+        f.write(content)
+        f.close()
+        self.file_info[sdfs_filename] = v
 
 def run_data_node():
     s = zerorpc.Server(DataNode())
