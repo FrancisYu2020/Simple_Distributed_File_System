@@ -68,6 +68,7 @@ class Client:
         c = zerorpc.Client()
         c.connect("tcp://" + self.get_master_host() + ":" + NAME_NODE_PORT)
         replicas = c.put_file(sdfs_filename)
+        print(replicas)
         c.close()
 
         content = open(local_filename, "rb").read()

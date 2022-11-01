@@ -72,8 +72,8 @@ class NameNode:
         m = hashlib.md5()
         m.update(sdfs_name.encode('utf-8'))
         id = int(m.hexdigest(), 16)
-        if len(self.ml) < 4:
-            return self.ml
+        # if len(self.ml) < 4:
+        #     return self.ml
         # return [self.ml[i % len(self.ml)] for i in range(id, id + 4)]
         return ["fa22-cs425-2205.cs.illinois.edu", "fa22-cs425-2206.cs.illinois.edu", "fa22-cs425-2207.cs.illinois.edu", "fa22-cs425-2208.cs.illinois.edu"]
 
