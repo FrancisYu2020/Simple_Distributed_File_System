@@ -12,9 +12,13 @@ contains version information
 contains replicas
 '''
 class File:
-    def __init__(self):
+    def __init__(self, filename):
+        self.filename = filename
         self.versions = [0]
         self.replicas = []
+    
+    def __repr__(self):
+        return "{ \n\t\"filename\" : \"" + self.filename + "\"\n\t\"replicas\" : " + str(self.replicas) + "\n\t\"versions\" : " + str(self.versions) + "\n}"
 
 '''
 class FileTable
@@ -25,7 +29,7 @@ class FileTable:
         self.files = {} # name -> File
     
     def insert_file(self, filename, replicas):
-        f = File()
+        f = File(filename)
         f.replicas = replicas
         self.files[filename] = f    
     
