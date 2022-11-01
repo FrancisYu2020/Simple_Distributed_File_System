@@ -90,7 +90,7 @@ class NameNode:
     def put_file(self, sdfs_name):
         print("Receive put request")
         if sdfs_name in self.ft.files:
-            self.ft.update_version(self.ft.files[sdfs_name])
+            self.ft.update_version(sdfs_name)
             return self.ft.files[sdfs_name].replicas
         else:
             replicas = self.__hash_sdfs_name(sdfs_name)
