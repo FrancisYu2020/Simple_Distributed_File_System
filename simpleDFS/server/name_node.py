@@ -66,16 +66,21 @@ class NameNode:
     def __init__(self): 
         self.ft = FileTable()
         self.nt = NodeTable()
-        self.ml = []
+        self.ml = ["fa22-cs425-2205.cs.illinois.edu", "fa22-cs425-2206.cs.illinois.edu", "fa22-cs425-2207.cs.illinois.edu", "fa22-cs425-2208.cs.illinois.edu"]
 
     def __hash_sdfs_name(self, sdfs_name):
         m = hashlib.md5()
         m.update(sdfs_name.encode('utf-8'))
         id = int(m.hexdigest(), 16)
-        # if len(self.ml) < 4:
-        #     return self.ml
-        # return [self.ml[i % len(self.ml)] for i in range(id, id + 4)]
-        return ["fa22-cs425-2205.cs.illinois.edu", "fa22-cs425-2206.cs.illinois.edu", "fa22-cs425-2207.cs.illinois.edu", "fa22-cs425-2208.cs.illinois.edu"]
+        if len(self.ml) < 4:
+            return self.ml
+        return [self.ml[i % len(self.ml)] for i in range(id, id + 4)]
+        # return ["fa22-cs425-2205.cs.illinois.edu", "fa22-cs425-2206.cs.illinois.edu", "fa22-cs425-2207.cs.illinois.edu", "fa22-cs425-2208.cs.illinois.edu"]
+
+    def safe_mode(self):
+        for node in self.ml:
+            c = zerorpc.Client()
+            c.connect("tcp://" + node + ":" + DATA_NODE_PORT)
 
 
     def put_file(self, sdfs_name):
@@ -109,10 +114,10 @@ class NameNode:
         return 
 
     def ls(self, sdfs_name):
-        return str(self.ft.files[sdfs_name])
+        return repr(self.ft.files[sdfs_name])
 
-    def store(self, data_node_id):
-        return str(self.nt[data_node_id])
+    def store(self, data_node):
+        return repr(self.nt[data_node])
     
 def run_name_node():
     s = zerorpc.Server(NameNode())
