@@ -1,6 +1,8 @@
 import zerorpc
 import os
 
+DATA_NODE_PORT = "4242"
+
 class DataNode:
     def __init__(self):
         pass
@@ -24,7 +26,7 @@ class DataNode:
 
 def run_data_node():
     s = zerorpc.Server(DataNode())
-    s.bind("tcp://0.0.0.0:4242")
+    s.bind("tcp://0.0.0.0:" + DATA_NODE_PORT)
     print("DataNode Server is running!")
     s.run()
 

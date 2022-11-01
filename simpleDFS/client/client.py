@@ -1,11 +1,14 @@
 import zerorpc
 
+DATA_NODE_PORT = "4242"
+NAME_NODE_PORT = "4241"
+
 class Client:
     def __init__(self):
         pass
     
     def get_master_host(self):
-        return "192.0.0.1"
+        return "fa22-cs425-2205.cs.illinois.edu"
     
     def printCommands(self):
         commands = '''
@@ -63,25 +66,26 @@ class Client:
     def put(self, local_filename, sdfs_filename):
         
         c = zerorpc.Client()
-        c.connect("tcp://127.0.0.1:4241")
-        data_node_address = c.put_file(sdfs_filename)
+        c.connect("tcp://" + self.get_master_host() + ":" + NAME_NODE_PORT)
+        replicas = c.put_file(sdfs_filename)
         c.close()
+
         content = open(local_filename, "rb").read()
-        for address in data_node_address:
+        for replica in replicas:
             c = zerorpc.Client()
-            c.connect("tcp://" + address + ":4242")
+            c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
             c.put_file(sdfs_filename, content)
             c.close()
     
     def get(self, sdfs_filename, local_filename):
         # get address
         c = zerorpc.Client()
-        c.connect("tcp://127.0.0.1:4241")
-        data_node_address = c.get_file(sdfs_filename)
+        c.connect("tcp://" + self.get_master_host() + ":" + NAME_NODE_PORT)
+        replica = c.get_file(sdfs_filename)
         c.close()
         # write to local
         c = zerorpc.Client()
-        c.connect("tcp://" + data_node_address + ":4242")
+        c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
         content = c.get_file(sdfs_filename)
         c.close()
         f = open(local_filename, 'wb')
@@ -89,19 +93,19 @@ class Client:
     
     def delete(self, sdfs_filename):
         c = zerorpc.Client()
-        c.connect("tcp://127.0.0.1:4241")
+        c.connect("tcp://" + self.get_master_host() + ":" + NAME_NODE_PORT)
         c.delete_file(sdfs_filename)
         c.close()
     
     def ls(self, sdfs_filename):
         c = zerorpc.Client()
-        c.connect("tcp://127.0.0.1:4241")
+        c.connect("tcp://" + self.get_master_host() + ":" + NAME_NODE_PORT)
         print(c.ls(sdfs_filename))
         c.close()
 
     def store(self, data_node_id):
         c = zerorpc.Client()
-        c.connect("tcp://127.0.0.1:4241")
+        c.connect("tcp://" + self.get_master_host() + ":" + NAME_NODE_PORT)
         c.store(data_node_id)
         c.close()
 
