@@ -1,24 +1,28 @@
 from collections import defaultdict
 import hashlib
 import zerorpc
+from enum import Enum
 
 
 DATA_NODE_PORT = "4242"
 NAME_NODE_PORT = "4241"
 
+class State(Enum):
+    IDLE = 0
+    WORK = 1
+    FAIL = 2
+
 '''
 class File
-contains version information
 contains replicas
 '''
 class File:
     def __init__(self, filename):
         self.filename = filename
-        self.versions = [0]
         self.replicas = []
     
     def __repr__(self):
-        return "{ \n\t\"filename\" : \"" + self.filename + "\"\n\t\"replicas\" : " + str(self.replicas) + "\n\t\"versions\" : " + str(self.versions) + "\n}"
+        return "{ \n\t\"filename\" : \"" + self.filename + "\"\n\t\"replicas\" : " + str(self.replicas) + "\n}"
 
 '''
 class FileTable
@@ -32,10 +36,6 @@ class FileTable:
         f = File(filename)
         f.replicas = replicas
         self.files[filename] = f    
-    
-    def update_version(self, filename):
-        v = self.files[filename].versions[-1]
-        self.files[filename].versions.append(v)
     
     def update_replicas(self, filename, replicas):
         self.files[filename].replicas = replicas
@@ -53,6 +53,7 @@ contains nodes and the files in the node
 class NodeTable:
     def __init__(self):
         self.nodes = defaultdict(set)
+        self.states = {}
     
     def insert_file(self, filename, replicas):
         for r in replicas:
@@ -70,7 +71,11 @@ class NameNode:
     def __init__(self): 
         self.ft = FileTable()
         self.nt = NodeTable()
-        self.ml = ["fa22-cs425-2205.cs.illinois.edu", "fa22-cs425-2206.cs.illinois.edu", "fa22-cs425-2207.cs.illinois.edu", "fa22-cs425-2208.cs.illinois.edu"]
+        self.ml = ["fa22-cs425-2201.cs.illinois.edu", "fa22-cs425-2202.cs.illinois.edu",
+                "fa22-cs425-2203.cs.illinois.edu", "fa22-cs425-2204.cs.illinois.edu",
+                "fa22-cs425-2205.cs.illinois.edu", "fa22-cs425-2206.cs.illinois.edu", 
+                "fa22-cs425-2207.cs.illinois.edu", "fa22-cs425-2208.cs.illinois.edu",
+                "fa22-cs425-2209.cs.illinois.edu", "fa22-cs425-2210.cs.illinois.edu"]
 
     def __hash_sdfs_name(self, sdfs_name):
         m = hashlib.md5()
@@ -85,18 +90,15 @@ class NameNode:
         for node in self.ml:
             c = zerorpc.Client()
             c.connect("tcp://" + node + ":" + DATA_NODE_PORT)
-
+            node_info = c.safe_mode()
 
     def put_file(self, sdfs_name):
         print("Receive put request")
-        if sdfs_name in self.ft.files:
-            self.ft.update_version(sdfs_name)
-            return self.ft.files[sdfs_name].replicas
-        else:
+        if sdfs_name not in self.ft.files:
             replicas = self.__hash_sdfs_name(sdfs_name)
             self.nt.insert_file(sdfs_name, replicas)
             self.ft.insert_file(sdfs_name, replicas)
-            return replicas
+        return self.ft.files[sdfs_name].replicas
 
     def get_file(self, sdfs_name):
         print("Receive get request")
