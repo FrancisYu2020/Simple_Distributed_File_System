@@ -72,11 +72,10 @@ class Client:
         c.close()
 
         content = open(local_filename, "rb").read()
-        for replica in replicas:
-            c = zerorpc.Client()
-            c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
-            c.put_file(sdfs_filename, content)
-            c.close()
+        c = zerorpc.Client()
+        c.connect("tcp://" + replicas[0] + ":" + DATA_NODE_PORT)
+        c.put_file(sdfs_filename, content, replicas[1:])
+        c.close()
     
     def get(self, sdfs_filename, local_filename):
         # get address
