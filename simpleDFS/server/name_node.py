@@ -110,9 +110,10 @@ class NameNode:
             return
 
     def delete_file(self, sdfs_name):
+        replicas = self.ft.files[sdfs_name].replicas
         self.ft.delete_file(sdfs_name)
         self.nt.delete_file(sdfs_name)
-        return self.ft.files[sdfs_name].replicas
+        return replicas
 
     def ls(self, sdfs_name):
         return repr(self.ft.files[sdfs_name])
