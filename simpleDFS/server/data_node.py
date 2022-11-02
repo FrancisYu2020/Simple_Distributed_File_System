@@ -54,6 +54,7 @@ class DataNode:
         self.file_info[sdfs_filename] = v
     
     def heartbeat(self):
+        print("Heartbeat")
         if not os.path.exists(os.getcwd() + "/store"):
             os.makedirs(os.getcwd() + "/store")
             return ""

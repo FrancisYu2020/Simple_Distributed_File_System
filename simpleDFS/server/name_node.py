@@ -9,11 +9,6 @@ import socket
 DATA_NODE_PORT = "4242"
 NAME_NODE_PORT = 4241
 
-class State(Enum):
-    IDLE = 0
-    WORK = 1
-    FAIL = 2
-
 class File:
     '''
     class File
@@ -116,7 +111,7 @@ class NameNode:
 
     def delete_file(self, sdfs_name):
         replicas = self.ft.files[sdfs_name].replicas
-        print("delete replicas:" + str(replicas))
+        print("delete " + sdfs_name + " from replicas:" + str(replicas))
         for replica in replicas:
             print("Delete", replica)
             c = zerorpc.Client()
