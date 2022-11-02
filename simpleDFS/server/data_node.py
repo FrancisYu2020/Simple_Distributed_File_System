@@ -54,7 +54,10 @@ class DataNode:
         self.file_info[sdfs_filename] = v
     
     def heartbeat(self):
-        files = os.listdir(os.getcwd() + "/store")
+        try:
+            files = os.listdir(os.getcwd() + "/store")
+        except:
+            return ""
         ret = [file.split(",")[0] for file in files]
         return " ".join(list(set(ret)))
 
