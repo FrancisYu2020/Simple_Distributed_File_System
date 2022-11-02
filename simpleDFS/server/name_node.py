@@ -1,11 +1,14 @@
 from collections import defaultdict
 import hashlib
+from click import command
 import zerorpc
 from enum import Enum
+from multiprocessing import Queue, Process
+import socket
 
 
 DATA_NODE_PORT = "4242"
-NAME_NODE_PORT = "4241"
+NAME_NODE_PORT = 4241
 
 class State(Enum):
     IDLE = 0
@@ -75,6 +78,7 @@ class NameNode:
                 "fa22-cs425-2205.cs.illinois.edu", "fa22-cs425-2206.cs.illinois.edu", 
                 "fa22-cs425-2207.cs.illinois.edu", "fa22-cs425-2208.cs.illinois.edu",
                 "fa22-cs425-2209.cs.illinois.edu", "fa22-cs425-2210.cs.illinois.edu"]
+        self.work_queue = Queue(1000)
 
     def __hash_sdfs_name(self, sdfs_name):
         m = hashlib.md5()
@@ -92,7 +96,6 @@ class NameNode:
             node_info = c.safe_mode()
 
     def put_file(self, sdfs_name):
-        print("Receive put request")
         if sdfs_name not in self.ft.files:
             replicas = self.__hash_sdfs_name(sdfs_name)
             self.nt.insert_file(sdfs_name, replicas)
@@ -100,7 +103,6 @@ class NameNode:
         return list(self.ft.files[sdfs_name].replicas)
 
     def get_file(self, sdfs_name):
-        print("Receive get request")
         if sdfs_name in self.ft.files:
             return list(self.ft.files[sdfs_name].replicas)[0]
         else:
@@ -108,7 +110,6 @@ class NameNode:
             return
 
     def delete_file(self, sdfs_name):
-        print("Receive delete request")
         replicas = self.ft.files[sdfs_name].replicas
         for replica in replicas:
             c = zerorpc.Client()
@@ -137,13 +138,65 @@ class NameNode:
                     self.ft.files[file].replicas.add(new_replica)
                     break
         del self.nt.nodes[fail_node]
+    
+    def producer(self):
+        print("Producer is running")
+        udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        localaddr = (socket.gethostname(), NAME_NODE_PORT)
+        print(localaddr)
+        udp_socket.bind(localaddr)
+        while True:
+            command, client_addr = udp_socket.recvfrom(4096)
+            command = command.decode("utf-8")
+            print("receive command: " + command + ", from " + str(client_addr[0]))
+            self.work_queue.put((command, client_addr))
+        s.close()
+        udp_socket.close()
+
+
+    def consumer(self):
+        print("Consumer is running")
+        while True:
+            command, client_addr = self.work_queue.get()
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            if command:
+                args = command.split(" ")
+                if args[0] == "put":
+                    print("Receive put request")
+                    data = " ".join(self.put_file(args[1])).encode("utf-8")
+                    s.sendto(data, client_addr)
+                elif args[0] == "get":
+                    print("Receive get request")
+                    data = self.get_file(args[1]).encode("utf-8")
+                    s.sendto(data, client_addr)
+                elif args[0] == "delete":
+                    print("Receive delete request")
+                    self.delete_file(args[1])
+                    data = "ack".encode("utf-8")
+                    s.sendto(data, client_addr)
+                elif args[0] == "ls":
+                    data = self.ls(args[1]).encode("utf-8")
+                    s.sendto(data, client_addr)
+            else:
+                s.close()
+                break
             
 
     
-def run_name_node():
-    s = zerorpc.Server(NameNode())
-    s.bind("tcp://0.0.0.0:" + NAME_NODE_PORT)
-    print("NameNode Server is running!")
-    s.run()
+# def run_name_node():
+#     s = zerorpc.Server(NameNode())
+#     s.bind("tcp://0.0.0.0:" + NAME_NODE_PORT)
+#     print("NameNode Server is running!")
+#     s.run()
 
-run_name_node()
+# run_name_node()
+
+def run():
+    name_node = NameNode()
+    print("NameNode is running")
+    pro = Process(target=name_node.producer)
+    con = Process(target=name_node.consumer)
+    pro.start()
+    con.start()
+
+run()

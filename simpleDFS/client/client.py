@@ -1,7 +1,8 @@
 import zerorpc
+import socket
 
 DATA_NODE_PORT = "4242"
-NAME_NODE_PORT = "4241"
+NAME_NODE_PORT = 4241
 
 class Client:
     def __init__(self):
@@ -64,12 +65,15 @@ class Client:
                     continue
             
     def put(self, local_filename, sdfs_filename):
-        
-        c = zerorpc.Client()
-        c.connect("tcp://" + self.get_master_host() + ":" + NAME_NODE_PORT)
-        replicas = c.put_file(sdfs_filename)
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        dst_addr = (self.get_master_host(), NAME_NODE_PORT)
+        # dst_addr = ("tian23-VirtualBox", NAME_NODE_PORT)
+        data = "put " + sdfs_filename
+        s.sendto(data.encode("utf-8"), dst_addr)
+        replicas, _ = s.recvfrom(4096)
+        replicas = replicas.decode("utf-8").split(" ")
         print(replicas)
-        c.close()
+        s.close()
 
         content = open(local_filename, "rb").read()
         c = zerorpc.Client()
@@ -79,10 +83,14 @@ class Client:
     
     def get(self, sdfs_filename, local_filename):
         # get address
-        c = zerorpc.Client()
-        c.connect("tcp://" + self.get_master_host() + ":" + NAME_NODE_PORT)
-        replica = c.get_file(sdfs_filename)
-        c.close()
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        dst_addr = (self.get_master_host(), NAME_NODE_PORT)
+        # dst_addr = ("tian23-VirtualBox", NAME_NODE_PORT)
+        data = "get " + sdfs_filename
+        s.sendto(data.encode("utf-8"), dst_addr)
+        replica, _ = s.recvfrom(4096)
+        s.close()
+
         # write to local
         c = zerorpc.Client()
         c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
@@ -92,22 +100,33 @@ class Client:
         f.write(content)
     
     def delete(self, sdfs_filename):
-        c = zerorpc.Client()
-        c.connect("tcp://" + self.get_master_host() + ":" + NAME_NODE_PORT)
-        c.delete_file(sdfs_filename)
-        c.close()
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        dst_addr = (self.get_master_host(), NAME_NODE_PORT)
+        # dst_addr = ("tian23-VirtualBox", NAME_NODE_PORT)
+        data = "delete " + sdfs_filename
+        s.sendto(data.encode("utf-8"), dst_addr)
+        ack, _ = s.recvfrom(4096)
+        s.close()
+        if ack.decode("utf-8") == "ack":
+            print("success")
+        else:
+            print("fail")
     
     def ls(self, sdfs_filename):
-        c = zerorpc.Client()
-        c.connect("tcp://" + self.get_master_host() + ":" + NAME_NODE_PORT)
-        print(c.ls(sdfs_filename))
-        c.close()
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        dst_addr = (self.get_master_host(), NAME_NODE_PORT)
+        # dst_addr = ("tian23-VirtualBox", NAME_NODE_PORT)
+        data = "ls " + sdfs_filename
+        s.sendto(data.encode("utf-8"), dst_addr)
+        file_info, _ = s.recvfrom(4096)
+        print(file_info.decode("utf-8"))
 
     def store(self, data_node_id):
         c = zerorpc.Client()
         c.connect("tcp://" + self.get_master_host() + ":" + NAME_NODE_PORT)
         c.store(data_node_id)
         c.close()
+    
 
 # test part
 c = Client()
