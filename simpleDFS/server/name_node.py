@@ -86,8 +86,7 @@ class NameNode:
         if len(self.ml) < 4:
             return self.ml
         return [self.ml[i % len(self.ml)] for i in range(id, id + 4)]
-        # return ["fa22-cs425-2205.cs.illinois.edu", "fa22-cs425-2206.cs.illinois.edu", "fa22-cs425-2207.cs.illinois.edu", "fa22-cs425-2208.cs.illinois.edu"]
-
+        
     def safe_mode(self):
         for node in self.ml:
             c = zerorpc.Client()
@@ -180,15 +179,6 @@ class NameNode:
                 s.close()
                 break
             
-
-    
-# def run_name_node():
-#     s = zerorpc.Server(NameNode())
-#     s.bind("tcp://0.0.0.0:" + NAME_NODE_PORT)
-#     print("NameNode Server is running!")
-#     s.run()
-
-# run_name_node()
 
 def run():
     name_node = NameNode()

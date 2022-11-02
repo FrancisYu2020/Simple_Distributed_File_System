@@ -67,7 +67,6 @@ class Client:
     def put(self, local_filename, sdfs_filename):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         dst_addr = (self.get_master_host(), NAME_NODE_PORT)
-        # dst_addr = ("tian23-VirtualBox", NAME_NODE_PORT)
         data = "put " + sdfs_filename
         s.sendto(data.encode("utf-8"), dst_addr)
         replicas, _ = s.recvfrom(4096)
@@ -85,10 +84,10 @@ class Client:
         # get address
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         dst_addr = (self.get_master_host(), NAME_NODE_PORT)
-        # dst_addr = ("tian23-VirtualBox", NAME_NODE_PORT)
         data = "get " + sdfs_filename
         s.sendto(data.encode("utf-8"), dst_addr)
         replica, _ = s.recvfrom(4096)
+        replica = replica.decode("utf-8")
         s.close()
 
         # write to local
@@ -102,7 +101,6 @@ class Client:
     def delete(self, sdfs_filename):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         dst_addr = (self.get_master_host(), NAME_NODE_PORT)
-        # dst_addr = ("tian23-VirtualBox", NAME_NODE_PORT)
         data = "delete " + sdfs_filename
         s.sendto(data.encode("utf-8"), dst_addr)
         ack, _ = s.recvfrom(4096)
@@ -115,7 +113,6 @@ class Client:
     def ls(self, sdfs_filename):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         dst_addr = (self.get_master_host(), NAME_NODE_PORT)
-        # dst_addr = ("tian23-VirtualBox", NAME_NODE_PORT)
         data = "ls " + sdfs_filename
         s.sendto(data.encode("utf-8"), dst_addr)
         file_info, _ = s.recvfrom(4096)
@@ -128,10 +125,5 @@ class Client:
         c.close()
     
 
-# test part
 c = Client()
 c.run()
-# c.put("client.py", "test")
-# c.get("test", "data_node_cpy")
-# c.ls("test")
-# c.delete("test")
