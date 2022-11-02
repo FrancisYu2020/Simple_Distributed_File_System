@@ -110,18 +110,9 @@ class NameNode:
             return
 
     def delete_file(self, sdfs_name):
-        replicas = self.ft.files[sdfs_name].replicas
-        print("delete " + sdfs_name + " from replicas:" + str(replicas))
-        for replica in replicas:
-            print("Delete", replica)
-            c = zerorpc.Client()
-            c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
-            print("Connected to " + "tcp://" + replica + ":" + DATA_NODE_PORT)
-            c.delete_file(sdfs_name)
-            c.close()
         self.ft.delete_file(sdfs_name)
         self.nt.delete_file(sdfs_name)
-        return 
+        return self.ft.files[sdfs_name].replicas
 
     def ls(self, sdfs_name):
         return repr(self.ft.files[sdfs_name])
@@ -175,8 +166,7 @@ class NameNode:
                     s.sendto(data, client_addr)
                 elif args[0] == "delete":
                     print("Receive delete request")
-                    self.delete_file(args[1])
-                    data = "ack".encode("utf-8")
+                    data = self.delete_file(args[1])
                     s.sendto(data, client_addr)
                 elif args[0] == "ls":
                     data = self.ls(args[1]).encode("utf-8")
