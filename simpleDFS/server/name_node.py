@@ -39,8 +39,8 @@ class FileTable:
         f.replicas = set(replicas)
         self.files[filename] = f    
     
-    def update_replicas(self, filename, replicas):
-        self.files[filename].replicas = set(replicas)
+    def update_replicas(self, filename, replica):
+        self.files[filename].replicas.add(replica)
     
     def delete_file(self, filename):
         if filename not in self.files:
@@ -86,12 +86,19 @@ class NameNode:
         if len(self.ml) < 4:
             return self.ml
         return [self.ml[i % len(self.ml)] for i in range(id, id + 4)]
-        
-    def safe_mode(self):
+
+    def initial_mode(self):
         for node in self.ml:
             c = zerorpc.Client()
             c.connect("tcp://" + node + ":" + DATA_NODE_PORT)
-            node_info = c.safe_mode()
+            node_info = c.heartbeat()
+            files = node_info.split(" ")
+            for file in files:
+                self.nt.insert_file(file, [node])
+                if file not in self.ft.files:
+                    self.ft.insert_file(file, [node])
+                else:
+                    self.ft.update_replicas(file, node)
 
     def put_file(self, sdfs_name):
         if sdfs_name not in self.ft.files:
@@ -182,6 +189,8 @@ class NameNode:
 
 def run():
     name_node = NameNode()
+    print("Initial namenode")
+    name_node.initial_mode()
     print("NameNode is running")
     pro = Process(target=name_node.producer)
     con = Process(target=name_node.consumer)
