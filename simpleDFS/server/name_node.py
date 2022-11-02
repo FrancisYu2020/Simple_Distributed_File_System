@@ -1,6 +1,5 @@
 from collections import defaultdict
 import hashlib
-from click import command
 import zerorpc
 from enum import Enum
 from multiprocessing import Queue, Process
