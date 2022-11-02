@@ -168,6 +168,7 @@ class NameNode:
                 elif args[0] == "delete":
                     print("Receive delete request")
                     data = self.delete_file(args[1])
+                    data = " ".join(list(data))
                     s.sendto(data, client_addr)
                 elif args[0] == "ls":
                     data = self.ls(args[1]).encode("utf-8")

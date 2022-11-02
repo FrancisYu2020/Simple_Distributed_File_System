@@ -105,7 +105,7 @@ class Client:
         s.sendto(data.encode("utf-8"), dst_addr)
         data, _ = s.recvfrom(4096)
         s.close()
-        replicas = data.decode("utf-8")
+        replicas = data.decode("utf-8").split(" ")
         print("delete " + sdfs_filename + " from replicas:" + str(replicas))
         for replica in replicas:
             print("Delete", replica)
