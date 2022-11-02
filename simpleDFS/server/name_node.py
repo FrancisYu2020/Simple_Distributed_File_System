@@ -118,6 +118,7 @@ class NameNode:
         replicas = self.ft.files[sdfs_name].replicas
         print("delete replicas:" + str(replicas))
         for replica in replicas:
+            print("Delete", replica)
             c = zerorpc.Client()
             c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
             c.delete_file(sdfs_name)
