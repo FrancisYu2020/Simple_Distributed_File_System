@@ -103,17 +103,11 @@ class Client:
         dst_addr = (self.get_namenode_host(), NAME_NODE_PORT)
         data = "delete " + sdfs_filename
         s.sendto(data.encode("utf-8"), dst_addr)
-        data, _ = s.recvfrom(4096)
+        ack, _ = s.recvfrom(4096)
         s.close()
-        replicas = data.decode("utf-8").split(" ")
-        print("delete " + sdfs_filename + " from replicas:" + str(replicas))
-        for replica in replicas:
-            print("Delete", replica)
-            c = zerorpc.Client()
-            c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
-            print("Connected to " + "tcp://" + replica + ":" + DATA_NODE_PORT)
-            c.delete_file(sdfs_filename)
-            c.close()
+        if ack.decode("utf-8") == "nack":
+            print("Fail")
+        return
     
     def ls(self, sdfs_filename):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
