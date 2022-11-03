@@ -70,6 +70,8 @@ class NameNode:
                 "fa22-cs425-2203.cs.illinois.edu", "fa22-cs425-2204.cs.illinois.edu",
                 "fa22-cs425-2205.cs.illinois.edu", "fa22-cs425-2206.cs.illinois.edu"]
         self.work_queue = Queue(1000)
+        self.initial_mode()
+        self.safe_mode()
 
     def __hash_sdfs_name(self, sdfs_name):
         '''
