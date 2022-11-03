@@ -7,6 +7,7 @@ import socket
 
 DATA_NODE_PORT = "4242"
 NAME_NODE_PORT = 4241
+work_queue = Queue(1000)
 
 class File:
     '''
@@ -188,7 +189,7 @@ class NameNode:
             command, client_addr = udp_socket.recvfrom(4096)
             command = command.decode("utf-8")
             print("receive command: " + command + ", from " + str(client_addr[0]))
-            self.work_queue.put((command, client_addr))
+            work_queue.put((command, client_addr))
         s.close()
         udp_socket.close()
 
@@ -196,7 +197,7 @@ class NameNode:
     def consumer(self):
         print("Consumer is running")
         while True:
-            command, client_addr = self.work_queue.get()
+            command, client_addr = work_queue.get()
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             if command:
                 args = command.split(" ")
@@ -230,9 +231,34 @@ def run():
     name_node.safe_mode()
     print("NameNode is running")
     pro = Process(target=name_node.producer)
-    con = Process(target=name_node.consumer)
-    name_node.delete_file("test1")
     pro.start()
-    con.start()
+    print("Consumer is running")
+    while True:
+        command, client_addr = work_queue.get()
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        if command:
+            args = command.split(" ")
+            if args[0] == "put":
+                print("Receive put request")
+                data = " ".join(self.put_file(args[1])).encode("utf-8")
+                s.sendto(data, client_addr)
+            elif args[0] == "get":
+                print("Receive get request")
+                data = name_node.get_file(args[1]).encode("utf-8")
+                s.sendto(data, client_addr)
+            elif args[0] == "delete":
+                print("Receive delete request")
+                data = name_node.delete_file(args[1])
+                data = " ".join(list(data))
+                s.sendto(data.encode("utf-8"), client_addr)
+            elif args[0] == "ls":
+                data = name_node.ls(args[1]).encode("utf-8")
+                s.sendto(data, client_addr)
+            elif args[0] == "store":
+                data = name_node.store(client_addr[0]).encode("utf-8")
+                s.sendto(data, client_addr)
+        else:
+            s.close()
+            break
 
 run()
