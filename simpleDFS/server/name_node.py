@@ -74,6 +74,9 @@ class NameNode:
         self.work_queue = Queue(1000)
 
     def __hash_sdfs_name(self, sdfs_name):
+        '''
+        map the sdfs name to replicas
+        '''
         m = hashlib.md5()
         m.update(sdfs_name.encode('utf-8'))
         id = int(m.hexdigest(), 16)
@@ -82,6 +85,9 @@ class NameNode:
         return [self.ml[i % len(self.ml)] for i in range(id, id + 4)]
     
     def __find_rebuild_replicas(self, need_num, cur_replicas):
+        '''
+        find new replicas which need to store the file for crash nodes
+        '''
         ret = []
         for _ in range(need_num):
             for m in self.ml:
@@ -90,11 +96,15 @@ class NameNode:
         return ret
 
     def initial_mode(self):
+        '''
+        Use heartbeat message to rebuild name node
+        '''
         for node in self.ml:
             c = zerorpc.Client()
             c.connect("tcp://" + node + ":" + DATA_NODE_PORT)
             node_info = c.heartbeat()
             files = node_info.split(" ")
+            c.close()
             for file in files:
                 self.nt.insert_file(file, [node])
                 if file not in self.ft.files:
@@ -103,6 +113,9 @@ class NameNode:
                     self.ft.update_replicas(file, node)
     
     def rreplica(self, need_num, cur_replicas, filename):
+        '''
+        rebuild the file of fail node to new replicas
+        '''
         new_replicas = self.__find_rebuild_replicas(need_num, cur_replicas)
         replica = cur_replicas[0]
         c = zerorpc.Client()
@@ -111,6 +124,9 @@ class NameNode:
         c.close()
 
     def safe_mode(self):
+        '''
+        check all files to make sure all files have enough replicas
+        '''
         for file in self.ft.files.keys():
             replica_num = len(self.ft.files[file].replicas)
             if replica_num < 4:
