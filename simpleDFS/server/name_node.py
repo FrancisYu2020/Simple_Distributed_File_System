@@ -155,6 +155,7 @@ class NameNode:
     def delete_file(self, sdfs_name):
         replicas = self.ft.files[sdfs_name].replicas
 
+        replicas = self.ml
         for r in replicas:
             c = zerorpc.Client()
             c.connect("tcp://" + r + ":" + DATA_NODE_PORT)
