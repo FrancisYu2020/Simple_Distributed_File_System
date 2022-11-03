@@ -126,7 +126,7 @@ class NameNode:
         c.rreplica(new_replicas, filename)
         c.close()
         for r in new_replicas:
-            self.ft.files[filename].add(r)
+            self.ft.files[filename].replicas.add(r)
         return
 
     def safe_mode(self):
