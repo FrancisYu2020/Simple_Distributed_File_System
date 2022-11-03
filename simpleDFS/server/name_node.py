@@ -153,7 +153,10 @@ class NameNode:
             return
 
     def delete_file(self, sdfs_name):
-        replicas = self.ft.files[sdfs_name].replicas
+        # if sdfs_name not in self.ft.files:
+        #     print("No such file")
+        #     return
+        # replicas = self.ft.files[sdfs_name].replicas
 
         replicas = self.ml
         for r in replicas:
