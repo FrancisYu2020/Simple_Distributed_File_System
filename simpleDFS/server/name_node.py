@@ -162,7 +162,7 @@ class NameNode:
         for r in replicas:
             c = zerorpc.Client()
             c.connect("tcp://" + r + ":" + DATA_NODE_PORT)
-            c.dedlete(sdfs_name)
+            c.delete_file(sdfs_name)
             c.close()
         
         self.ft.delete_file(sdfs_name)
