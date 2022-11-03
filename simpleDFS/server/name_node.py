@@ -109,6 +109,8 @@ class NameNode:
                     self.ft.insert_file(file, [node])
                 else:
                     self.ft.update_replicas(file, node)
+        for file in self.ft.files.keys():
+            print(repr(self.ft.files[file]))
     
     def rreplica(self, need_num, cur_replicas, filename):
         '''
@@ -128,7 +130,7 @@ class NameNode:
         for file in self.ft.files.keys():
             replica_num = len(self.ft.files[file].replicas)
             if replica_num < 4:
-                self.rreplica(4 - replica_num, self.ft.files[file].replicas, file)
+                self.rreplica(4 - replica_num, list(self.ft.files[file].replicas), file)
         return 
 
 
