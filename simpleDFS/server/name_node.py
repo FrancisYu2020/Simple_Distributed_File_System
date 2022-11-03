@@ -92,6 +92,7 @@ class NameNode:
             for m in self.ml:
                 if m not in cur_replicas and m not in ret:
                     ret.append(m)
+                    break
         return ret
 
     def initial_mode(self):
