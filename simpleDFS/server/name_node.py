@@ -224,8 +224,8 @@ def run():
     name_node.initial_mode()
     name_node.safe_mode()
     print("NameNode is running")
-    pro = Process(target=producer, args=(name_node))
-    con = Process(target=consumer, args=(name_node))
+    pro = Process(target=producer, args=([name_node]))
+    con = Process(target=consumer, args=([name_node]))
     pro.start()
     con.start()
 
