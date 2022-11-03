@@ -157,15 +157,14 @@ class NameNode:
         #     print("No such file")
         #     return
         # replicas = self.ft.files[sdfs_name].replicas
+
         replicas = self.ml
-        def delete():
-            for r in replicas:
-                c = zerorpc.Client()
-                c.connect("tcp://" + r + ":" + DATA_NODE_PORT)
-                c.delete_file(sdfs_name)
-                c.close()
-        p = Process(target=delete)
-        p.start()
+        for r in replicas:
+            c = zerorpc.Client()
+            c.connect("tcp://" + r + ":" + DATA_NODE_PORT)
+            c.delete_file(sdfs_name)
+            c.close()
+        
         self.ft.delete_file(sdfs_name)
         self.nt.delete_file(sdfs_name)
         return replicas
@@ -230,9 +229,9 @@ def run():
     name_node.initial_mode()
     name_node.safe_mode()
     print("NameNode is running")
-    # name_node.delete_file("test1")
     pro = Process(target=name_node.producer)
     con = Process(target=name_node.consumer)
+    name_node.delete_file("test1")
     pro.start()
     con.start()
 
