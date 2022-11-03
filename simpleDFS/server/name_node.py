@@ -173,51 +173,49 @@ class NameNode:
         c.close()
         return data
     
-    def producer(self):
-        print("Producer is running")
-        udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        localaddr = (socket.gethostname(), NAME_NODE_PORT)
-        print(localaddr)
-        udp_socket.bind(localaddr)
-        while True:
-            command, client_addr = udp_socket.recvfrom(4096)
-            command = command.decode("utf-8")
-            print("receive command: " + command + ", from " + str(client_addr[0]))
-            self.work_queue.put((command, client_addr))
-        s.close()
-        udp_socket.close()
+def producer(name_node):
+    print("Producer is running")
+    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    localaddr = (socket.gethostname(), NAME_NODE_PORT)
+    print(localaddr)
+    udp_socket.bind(localaddr)
+    while True:
+        command, client_addr = udp_socket.recvfrom(4096)
+        command = command.decode("utf-8")
+        print("receive command: " + command + ", from " + str(client_addr[0]))
+        name_node.work_queue.put((command, client_addr))
+    s.close()
+    udp_socket.close()
 
 
-    def consumer(self):
-        print("Consumer is running")
-        while True:
-            command, client_addr = self.work_queue.get()
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            if command:
-                args = command.split(" ")
-                if args[0] == "put":
-                    print("Receive put request")
-                    data = " ".join(self.put_file(args[1])).encode("utf-8")
-                    s.sendto(data, client_addr)
-                elif args[0] == "get":
-                    print("Receive get request")
-                    data = self.get_file(args[1]).encode("utf-8")
-                    s.sendto(data, client_addr)
-                elif args[0] == "delete":
-                    print("Receive delete request")
-                    p = Process(target=self.delete_file(args[1]))
-                    p.start()
-                    p.join()
-                    s.sendto("ack", client_addr)
-                elif args[0] == "ls":
-                    data = self.ls(args[1]).encode("utf-8")
-                    s.sendto(data, client_addr)
-                elif args[0] == "store":
-                    data = self.store(client_addr[0]).encode("utf-8")
-                    s.sendto(data, client_addr)
-            else:
-                s.close()
-                break
+def consumer(name_node):
+    print("Consumer is running")
+    while True:
+        command, client_addr = name_node.work_queue.get()
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        if command:
+            args = command.split(" ")
+            if args[0] == "put":
+                print("Receive put request")
+                data = " ".join(name_node.put_file(args[1])).encode("utf-8")
+                s.sendto(data, client_addr)
+            elif args[0] == "get":
+                print("Receive get request")
+                data = name_node.get_file(args[1]).encode("utf-8")
+                s.sendto(data, client_addr)
+            elif args[0] == "delete":
+                print("Receive delete request")
+                name_node.delete_file(args[1])
+                s.sendto("ack", client_addr)
+            elif args[0] == "ls":
+                data = name_node.ls(args[1]).encode("utf-8")
+                s.sendto(data, client_addr)
+            elif args[0] == "store":
+                data = name_node.store(client_addr[0]).encode("utf-8")
+                s.sendto(data, client_addr)
+        else:
+            s.close()
+            break
             
 
 def run():
@@ -226,8 +224,8 @@ def run():
     name_node.initial_mode()
     name_node.safe_mode()
     print("NameNode is running")
-    pro = Process(target=name_node.producer)
-    con = Process(target=name_node.consumer)
+    pro = Process(target=producer, args=(name_node))
+    con = Process(target=consumer, args=(name_node))
     pro.start()
     con.start()
 
