@@ -68,7 +68,7 @@ class NameNode:
         self.ft = FileTable()
         self.nt = NodeTable()
         self.ml = ["fa22-cs425-2201.cs.illinois.edu", "fa22-cs425-2202.cs.illinois.edu",
-                "fa22-cs425-2203.cs.illinois.edu",
+                "fa22-cs425-2203.cs.illinois.edu", "fa22-cs425-2205.cs.illinois.edu",
                 "fa22-cs425-2205.cs.illinois.edu", "fa22-cs425-2206.cs.illinois.edu"]
         self.work_queue = Queue(1000)
 
@@ -125,6 +125,9 @@ class NameNode:
         c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
         c.rreplica(new_replicas, filename)
         c.close()
+        for r in new_replicas:
+            self.ft.files[filename].add(r)
+        return
 
     def safe_mode(self):
         '''
