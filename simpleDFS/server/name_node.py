@@ -1,7 +1,6 @@
 from collections import defaultdict
 import hashlib
 import zerorpc
-from enum import Enum
 from multiprocessing import Queue, Process
 import socket
 
@@ -81,6 +80,14 @@ class NameNode:
         if len(self.ml) < 4:
             return self.ml
         return [self.ml[i % len(self.ml)] for i in range(id, id + 4)]
+    
+    def __find_rebuild_replicas(self, need_num, cur_replicas):
+        ret = []
+        for _ in range(need_num):
+            for m in self.ml:
+                if m not in cur_replicas and m not in ret:
+                    ret.append(m)
+        return ret
 
     def initial_mode(self):
         for node in self.ml:
@@ -94,6 +101,22 @@ class NameNode:
                     self.ft.insert_file(file, [node])
                 else:
                     self.ft.update_replicas(file, node)
+    
+    def rreplica(self, need_num, cur_replicas, filename):
+        new_replicas = self.__find_rebuild_replicas(need_num, cur_replicas)
+        replica = cur_replicas[0]
+        c = zerorpc.Client()
+        c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
+        c.rreplica(new_replicas, filename)
+        c.close()
+
+    def safe_mode(self):
+        for file in self.ft.files.keys():
+            replica_num = len(self.ft.files[file].replicas)
+            if replica_num < 4:
+                self.rreplcia(4 - replica_num, self.ft.files[file].replicas, file)
+        return 
+
 
     def put_file(self, sdfs_name):
         if sdfs_name not in self.ft.files:
@@ -120,20 +143,6 @@ class NameNode:
 
     def store(self, data_node):
         return repr(self.nt[data_node])
-
-    def rreplcia(self, fail_node, new_replica):
-        files = self.nt.nodes[fail_node]
-        for file in files:
-            self.ft.files[file].replicas.remove(fail_node)
-            for replica in self.ft.files[file].replicas:
-                if replica != fail_node:
-                    c = zerorpc.Client()
-                    c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
-                    c.build_replica(file, new_replica)
-                    c.close()
-                    self.ft.files[file].replicas.add(new_replica)
-                    break
-        del self.nt.nodes[fail_node]
     
     def producer(self):
         print("Producer is running")
@@ -182,6 +191,7 @@ def run():
     name_node = NameNode()
     print("Initial namenode")
     name_node.initial_mode()
+    name_node.safe_mode()
     print("NameNode is running")
     pro = Process(target=name_node.producer)
     con = Process(target=name_node.consumer)

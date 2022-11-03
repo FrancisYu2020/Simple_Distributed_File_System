@@ -8,7 +8,7 @@ class Client:
     def __init__(self):
         pass
     
-    def get_master_host(self):
+    def get_namenode_host(self):
         return "fa22-cs425-2205.cs.illinois.edu"
     
     def printCommands(self):
@@ -66,7 +66,7 @@ class Client:
             
     def put(self, local_filename, sdfs_filename):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        dst_addr = (self.get_master_host(), NAME_NODE_PORT)
+        dst_addr = (self.get_namenode_host(), NAME_NODE_PORT)
         data = "put " + sdfs_filename
         s.sendto(data.encode("utf-8"), dst_addr)
         replicas, _ = s.recvfrom(4096)
@@ -83,7 +83,7 @@ class Client:
     def get(self, sdfs_filename, local_filename):
         # get address
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        dst_addr = (self.get_master_host(), NAME_NODE_PORT)
+        dst_addr = (self.get_namenode_host(), NAME_NODE_PORT)
         data = "get " + sdfs_filename
         s.sendto(data.encode("utf-8"), dst_addr)
         replica, _ = s.recvfrom(4096)
@@ -100,7 +100,7 @@ class Client:
     
     def delete(self, sdfs_filename):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        dst_addr = (self.get_master_host(), NAME_NODE_PORT)
+        dst_addr = (self.get_namenode_host(), NAME_NODE_PORT)
         data = "delete " + sdfs_filename
         s.sendto(data.encode("utf-8"), dst_addr)
         data, _ = s.recvfrom(4096)
@@ -117,7 +117,7 @@ class Client:
     
     def ls(self, sdfs_filename):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        dst_addr = (self.get_master_host(), NAME_NODE_PORT)
+        dst_addr = (self.get_namenode_host(), NAME_NODE_PORT)
         data = "ls " + sdfs_filename
         s.sendto(data.encode("utf-8"), dst_addr)
         file_info, _ = s.recvfrom(4096)
@@ -125,7 +125,7 @@ class Client:
 
     def store(self, data_node_id):
         c = zerorpc.Client()
-        c.connect("tcp://" + self.get_master_host() + ":" + NAME_NODE_PORT)
+        c.connect("tcp://" + self.get_namenode_host() + ":" + NAME_NODE_PORT)
         c.store(data_node_id)
         c.close()
     

@@ -36,16 +36,17 @@ class DataNode:
             filepath = os.path.join(os.getcwd() + "/store", sdfs_filename + ",v" + str(v))
             os.remove(filepath)
     
-    def build_replica(self, sdfs_filename, replica):
-        for v in range(1, self.file_info[sdfs_filename] + 1):
-            filepath = os.path.join(os.getcwd() + "/store", sdfs_filename + ",v" + str(v))
-            content = open(filepath, "rb").read()
-            c = zerorpc.Client()
-            c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
-            c.rreplica(sdfs_filename, content, v)
-            c.close()
-    
-    def rreplica(self, sdfs_filename, content, v):
+    def rreplica(self, new_replicas, sdfs_filename):
+        for replica in new_replicas:
+            for v in range(1, self.file_info[sdfs_filename] + 1):
+                filepath = os.path.join(os.getcwd() + "/store", sdfs_filename + ",v" + str(v))
+                content = open(filepath, "rb").read()
+                c = zerorpc.Client()
+                c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
+                c.rebuild(sdfs_filename, content, v)
+                c.close()
+
+    def rebuild(self, sdfs_filename, content, v):
         filename = sdfs_filename + ",v" + str(v)
         filepath = os.path.join(os.getcwd() + "/store", filename)
         f = open(filepath, "wb")
