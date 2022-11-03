@@ -30,7 +30,7 @@ class DataNode:
             return
         return open(filepath, "rb").read()
 
-    def delete(self, sdfs_filename):
+    def delete_file(self, sdfs_filename):
         print("Try to delete file: " + sdfs_filename)
         for v in range(1, self.file_info[sdfs_filename] + 1):
             filepath = os.path.join(os.getcwd() + "/store", sdfs_filename + ",v" + str(v))
