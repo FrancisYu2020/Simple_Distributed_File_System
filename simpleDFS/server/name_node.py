@@ -128,7 +128,7 @@ class NameNode:
         for file in self.ft.files.keys():
             replica_num = len(self.ft.files[file].replicas)
             if replica_num < 4:
-                self.rreplcia(4 - replica_num, self.ft.files[file].replicas, file)
+                self.rreplica(4 - replica_num, self.ft.files[file].replicas, file)
         return 
 
 
