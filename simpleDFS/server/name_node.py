@@ -155,8 +155,10 @@ class NameNode:
     def ls(self, sdfs_name):
         return repr(self.ft.files[sdfs_name])
 
-    def store(self, data_node):
-        return repr(self.nt[data_node])
+    def store(self, client):
+        c = zerorpc.Client()
+        c.connect("tcp://" + client + ":" + DATA_NODE_PORT)
+        return c.heartbeat()
     
     def producer(self):
         print("Producer is running")
@@ -195,6 +197,9 @@ class NameNode:
                     s.sendto(data.encode("utf-8"), client_addr)
                 elif args[0] == "ls":
                     data = self.ls(args[1]).encode("utf-8")
+                    s.sendto(data, client_addr)
+                elif args[0] == "store":
+                    data = self.store(client_addr[0]).encode("utf-8")
                     s.sendto(data, client_addr)
             else:
                 s.close()

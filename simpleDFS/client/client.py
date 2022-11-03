@@ -55,7 +55,7 @@ class Client:
                 pass
             elif len(args) == 1:
                 if args[0] == "store":
-                    pass
+                    self.store()
                 elif args[0] == "exit":
                     return
                 elif args[0] == "help":
@@ -123,11 +123,13 @@ class Client:
         file_info, _ = s.recvfrom(4096)
         print(file_info.decode("utf-8"))
 
-    def store(self, data_node_id):
-        c = zerorpc.Client()
-        c.connect("tcp://" + self.get_namenode_host() + ":" + NAME_NODE_PORT)
-        c.store(data_node_id)
-        c.close()
+    def store(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        dst_addr = (self.get_namenode_host(), NAME_NODE_PORT)
+        data = "store"
+        s.sendto(data.encode("utf-8"), dst_addr)
+        file_info, _ = s.recvfrom(4096)
+        print(file_info.decode("utf-8"))
     
 
 c = Client()
