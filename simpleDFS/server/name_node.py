@@ -223,6 +223,7 @@ def run():
     print("Initial namenode")
     name_node.initial_mode()
     name_node.safe_mode()
+    name_node.delete_file("test1")
     print("NameNode is running")
     pro = Process(target=producer, args=([name_node]))
     con = Process(target=consumer, args=([name_node]))
