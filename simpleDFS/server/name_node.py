@@ -70,8 +70,6 @@ class NameNode:
                 "fa22-cs425-2203.cs.illinois.edu", "fa22-cs425-2204.cs.illinois.edu",
                 "fa22-cs425-2205.cs.illinois.edu", "fa22-cs425-2206.cs.illinois.edu"]
         self.work_queue = Queue(1000)
-        self.initial_mode()
-        self.safe_mode()
 
     def __hash_sdfs_name(self, sdfs_name):
         '''
@@ -156,6 +154,13 @@ class NameNode:
 
     def delete_file(self, sdfs_name):
         replicas = self.ft.files[sdfs_name].replicas
+
+        for r in replicas:
+            c = zerorpc.Client()
+            c.connect("tcp://" + r + ":" + DATA_NODE_PORT)
+            c.dedlete(sdfs_name)
+            c.close()
+        
         self.ft.delete_file(sdfs_name)
         self.nt.delete_file(sdfs_name)
         return replicas
@@ -217,7 +222,10 @@ class NameNode:
 
 def run():
     name_node = NameNode()
+    name_node.initial_mode()
+    name_node.safe_mode()
     print("NameNode is running")
+    name_node.delete_file("test1")
     pro = Process(target=name_node.producer)
     con = Process(target=name_node.consumer)
     pro.start()
