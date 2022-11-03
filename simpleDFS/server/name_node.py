@@ -161,7 +161,9 @@ class NameNode:
         print(client)
         c = zerorpc.Client()
         c.connect("tcp://" + client + ":" + DATA_NODE_PORT)
-        return c.heartbeat()
+        data = c.heartbeat()
+        c.close()
+        return data
     
     def producer(self):
         print("Producer is running")
