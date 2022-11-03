@@ -97,6 +97,7 @@ class NameNode:
         '''
         Use heartbeat message to rebuild name node
         '''
+        print("Initial mode...")
         for node in self.ml:
             c = zerorpc.Client()
             c.connect("tcp://" + node + ":" + DATA_NODE_PORT)
@@ -111,6 +112,7 @@ class NameNode:
                     self.ft.update_replicas(file, node)
         for file in self.ft.files.keys():
             print(repr(self.ft.files[file]))
+        print("Finsih initial mode!")
     
     def rreplica(self, need_num, cur_replicas, filename):
         '''
@@ -127,10 +129,12 @@ class NameNode:
         '''
         check all files to make sure all files have enough replicas
         '''
+        print("Safe mode...")
         for file in self.ft.files.keys():
             replica_num = len(self.ft.files[file].replicas)
             if replica_num < 4:
                 self.rreplica(4 - replica_num, list(self.ft.files[file].replicas), file)
+        print("Finish safe mode!")
         return 
 
 
@@ -161,7 +165,6 @@ class NameNode:
         print(client)
         c = zerorpc.Client()
         c.connect("tcp://" + client + ":" + DATA_NODE_PORT)
-        data = c.heartbeat()
         return c.heartbeat()
     
     def producer(self):
@@ -209,15 +212,13 @@ class NameNode:
                 s.close()
                 break
     
-    def run(self):
-        print("Initial namenode")
-        self.initial_mode()
-        self.safe_mode()
-        print("NameNode is running")
-        pro = Process(target=self.producer)
-        con = Process(target=self.consumer)
-        pro.start()
-        con.start()
 
-nn = NameNode()
-nn.run()
+def run():
+    name_node = NameNode()
+    print("NameNode is running")
+    pro = Process(target=name_node.producer)
+    con = Process(target=name_node.consumer)
+    pro.start()
+    con.start()
+
+run()
