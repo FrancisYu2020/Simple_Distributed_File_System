@@ -158,6 +158,7 @@ class NameNode:
         return repr(self.ft.files[sdfs_name])
 
     def store(self, client):
+        print(client)
         c = zerorpc.Client()
         c.connect("tcp://" + client + ":" + DATA_NODE_PORT)
         return c.heartbeat()
