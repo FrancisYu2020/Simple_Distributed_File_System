@@ -208,17 +208,16 @@ class NameNode:
             else:
                 s.close()
                 break
-            
+    
+    def run(self):
+        print("Initial namenode")
+        self.initial_mode()
+        self.safe_mode()
+        print("NameNode is running")
+        pro = Process(target=self.producer)
+        con = Process(target=self.consumer)
+        pro.start()
+        con.start()
 
-def run():
-    name_node = NameNode()
-    print("Initial namenode")
-    name_node.initial_mode()
-    name_node.safe_mode()
-    print("NameNode is running")
-    pro = Process(target=name_node.producer)
-    con = Process(target=name_node.consumer)
-    pro.start()
-    con.start()
-
-run()
+nn = NameNode()
+nn.run()
