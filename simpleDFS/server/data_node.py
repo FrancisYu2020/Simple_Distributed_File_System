@@ -30,11 +30,12 @@ class DataNode:
             return
         return open(filepath, "rb").read()
 
-    def delete_file(self, sdfs_filename):
+    def delete(self, sdfs_filename):
         print("Try to delete file: " + sdfs_filename)
         for v in range(1, self.file_info[sdfs_filename] + 1):
             filepath = os.path.join(os.getcwd() + "/store", sdfs_filename + ",v" + str(v))
             os.remove(filepath)
+        del self.file_info[sdfs_filename]
     
     def rreplica(self, new_replicas, sdfs_filename):
         for replica in new_replicas:
