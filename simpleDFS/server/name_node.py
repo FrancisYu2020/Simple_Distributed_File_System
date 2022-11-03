@@ -127,12 +127,10 @@ class NameNode:
         '''
         check all files to make sure all files have enough replicas
         '''
-        print("Start safe mode")
         for file in self.ft.files.keys():
             replica_num = len(self.ft.files[file].replicas)
             if replica_num < 4:
                 self.rreplica(4 - replica_num, list(self.ft.files[file].replicas), file)
-        print("Safe mode finished")
         return 
 
 
@@ -152,14 +150,6 @@ class NameNode:
 
     def delete_file(self, sdfs_name):
         replicas = self.ft.files[sdfs_name].replicas
-        print("delete " + sdfs_name + " from replicas:" + str(replicas))
-        for replica in replicas:
-            print("Delete", replica)
-            c = zerorpc.Client()
-            c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
-            print("Connected to " + "tcp://" + replica + ":" + DATA_NODE_PORT)
-            c.delete(sdfs_name)
-            c.close()
         self.ft.delete_file(sdfs_name)
         self.nt.delete_file(sdfs_name)
         return replicas
@@ -172,52 +162,52 @@ class NameNode:
         c = zerorpc.Client()
         c.connect("tcp://" + client + ":" + DATA_NODE_PORT)
         data = c.heartbeat()
-        c.close()
-        return data
+        return c.heartbeat()
     
-def producer(name_node):
-    print("Producer is running")
-    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    localaddr = (socket.gethostname(), NAME_NODE_PORT)
-    print(localaddr)
-    udp_socket.bind(localaddr)
-    while True:
-        command, client_addr = udp_socket.recvfrom(4096)
-        command = command.decode("utf-8")
-        print("receive command: " + command + ", from " + str(client_addr[0]))
-        name_node.work_queue.put((command, client_addr))
-    s.close()
-    udp_socket.close()
+    def producer(self):
+        print("Producer is running")
+        udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        localaddr = (socket.gethostname(), NAME_NODE_PORT)
+        print(localaddr)
+        udp_socket.bind(localaddr)
+        while True:
+            command, client_addr = udp_socket.recvfrom(4096)
+            command = command.decode("utf-8")
+            print("receive command: " + command + ", from " + str(client_addr[0]))
+            self.work_queue.put((command, client_addr))
+        s.close()
+        udp_socket.close()
 
 
-def consumer(name_node):
-    print("Consumer is running")
-    while True:
-        command, client_addr = name_node.work_queue.get()
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        if command:
-            args = command.split(" ")
-            if args[0] == "put":
-                print("Receive put request")
-                data = " ".join(name_node.put_file(args[1])).encode("utf-8")
-                s.sendto(data, client_addr)
-            elif args[0] == "get":
-                print("Receive get request")
-                data = name_node.get_file(args[1]).encode("utf-8")
-                s.sendto(data, client_addr)
-            elif args[0] == "delete":
-                print("Receive delete request")
-                name_node.delete_file(args[1])
-                s.sendto("ack", client_addr)
-            elif args[0] == "ls":
-                data = name_node.ls(args[1]).encode("utf-8")
-                s.sendto(data, client_addr)
-            elif args[0] == "store":
-                data = name_node.store(client_addr[0]).encode("utf-8")
-                s.sendto(data, client_addr)
-        else:
-            s.close()
-            break
+    def consumer(self):
+        print("Consumer is running")
+        while True:
+            command, client_addr = self.work_queue.get()
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            if command:
+                args = command.split(" ")
+                if args[0] == "put":
+                    print("Receive put request")
+                    data = " ".join(self.put_file(args[1])).encode("utf-8")
+                    s.sendto(data, client_addr)
+                elif args[0] == "get":
+                    print("Receive get request")
+                    data = self.get_file(args[1]).encode("utf-8")
+                    s.sendto(data, client_addr)
+                elif args[0] == "delete":
+                    print("Receive delete request")
+                    data = self.delete_file(args[1])
+                    data = " ".join(list(data))
+                    s.sendto(data.encode("utf-8"), client_addr)
+                elif args[0] == "ls":
+                    data = self.ls(args[1]).encode("utf-8")
+                    s.sendto(data, client_addr)
+                elif args[0] == "store":
+                    data = self.store(client_addr[0]).encode("utf-8")
+                    s.sendto(data, client_addr)
+            else:
+                s.close()
+                break
             
 
 def run():
@@ -225,10 +215,9 @@ def run():
     print("Initial namenode")
     name_node.initial_mode()
     name_node.safe_mode()
-    # name_node.delete_file("test1")
     print("NameNode is running")
-    pro = Process(target=producer, args=([name_node]))
-    con = Process(target=consumer, args=([name_node]))
+    pro = Process(target=name_node.producer)
+    con = Process(target=name_node.consumer)
     pro.start()
     con.start()
 
