@@ -215,9 +215,10 @@ def run():
             elif args[0] == "delete":
                 print("Receive delete request")
                 if name_node.delete_file(args[1]):
-                    s.sendto("ack", client_addr)
+                    data = "ack"
                 else:
-                    s.sendto("nack", client_addr)
+                    data = "nack"
+                s.sendto(data.encode("utf-8"), client_addr)
             elif args[0] == "ls":
                 data = name_node.ls(args[1]).encode("utf-8")
                 s.sendto(data, client_addr)
