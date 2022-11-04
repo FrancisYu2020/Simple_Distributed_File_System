@@ -13,6 +13,7 @@ def grep(request):
     return: line count message or error message
     """
     args = request.split()
+    print(args)
     if len(args) != 4 or args[0] != 'grep' or (args[1] != '-c' and args[1] != '-Ec'):
         return "Wrong format! Correct format: `grep -c pattern` or `grep -Ec pattern`"
     res = ''
