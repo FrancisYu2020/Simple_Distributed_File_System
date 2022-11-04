@@ -31,6 +31,16 @@ class DataNode:
             print("No file")
             return
         return open(filepath, "rb").read()
+    
+    def get_file_version(self, sdfs_filename, v):
+        print("Try to get file: " + sdfs_filename)
+        if v > self.file_info[sdfs_filename]:
+            return "", -1
+        filepath = os.path.join(os.getcwd() + "/store", sdfs_filename + ",v" + str(self.file_info[sdfs_filename] - v))
+        if not os.path.isfile(filepath):
+            print("No file")
+            return "", -2
+        return open(filepath, "rb").read(), self.file_info[sdfs_filename] - v
 
     def delete_file(self, sdfs_filename):
         print("Try to delete file: " + sdfs_filename)

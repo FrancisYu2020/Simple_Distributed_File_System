@@ -94,6 +94,9 @@ class NameNode:
                     ret.append(m)
                     break
         return ret
+    
+    def __update_ml():
+        return
 
     def initial_mode(self):
         '''
@@ -122,7 +125,7 @@ class NameNode:
         '''
         new_replicas = self.__find_rebuild_replicas(need_num, cur_replicas)
         replica = cur_replicas[0]
-        c = zerorpc.Client()
+        c = zerorpc.Client(timeout = 10)
         c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
         c.rreplica(new_replicas, filename)
         c.close()
@@ -135,10 +138,15 @@ class NameNode:
         check all files to make sure all files have enough replicas
         '''
         print("Safe mode...")
-        for file in self.ft.files.keys():
-            replica_num = len(self.ft.files[file].replicas)
-            if replica_num < 4:
-                self.rreplica(4 - replica_num, list(self.ft.files[file].replicas), file)
+        while True:
+            try:
+                for file in self.ft.files.keys():
+                    replica_num = len(self.ft.files[file].replicas)
+                    if replica_num < 4:
+                        self.rreplica(4 - replica_num, list(self.ft.files[file].replicas), file)
+                break
+            except:
+                continue
         print("Finish safe mode!")
         return 
 
@@ -152,7 +160,7 @@ class NameNode:
 
     def get_file(self, sdfs_name):
         if sdfs_name in self.ft.files:
-            return list(self.ft.files[sdfs_name].replicas)[0]
+            return " ".join(list(self.ft.files[sdfs_name].replicas))
         else:
             print("No such file!")
             return

@@ -52,7 +52,12 @@ class Client:
                     print("Invalid Input! If you need any help, please type help for instructions.")
                     continue
             elif len(args) == 4:
-                pass
+                if args[0] == "get-versions":
+                    sdfs_filename = args[1]
+                    numversions = args[2]
+                    localfilename = args[3]
+                    self.get_versions(sdfs_filename, int(numversions), localfilename)
+
             elif len(args) == 1:
                 if args[0] == "store":
                     self.store()
@@ -79,6 +84,7 @@ class Client:
         c.connect("tcp://" + replicas[0] + ":" + DATA_NODE_PORT)
         c.put_file(sdfs_filename, content, replicas[1:])
         c.close()
+        print("Put Success.")
     
     def get(self, sdfs_filename, local_filename):
         # get address
@@ -86,17 +92,24 @@ class Client:
         dst_addr = (self.get_namenode_host(), NAME_NODE_PORT)
         data = "get " + sdfs_filename
         s.sendto(data.encode("utf-8"), dst_addr)
-        replica, _ = s.recvfrom(4096)
-        replica = replica.decode("utf-8")
+        replicas, _ = s.recvfrom(4096)
+        replicas = replicas.decode("utf-8").split(" ")
         s.close()
 
-        # write to local
-        c = zerorpc.Client()
-        c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
-        content = c.get_file(sdfs_filename)
-        c.close()
-        f = open(local_filename, 'wb')
-        f.write(content)
+        for replica in replicas:
+            # write to local
+            try:
+                c = zerorpc.Client(timeout=10)
+                c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
+                content = c.get_file(sdfs_filename)
+                c.close()
+                f = open(local_filename, 'wb')
+                f.write(content)
+                print("Get Success.")
+                return
+            except:
+                continue
+        print("Fail, please try again.")
     
     def delete(self, sdfs_filename):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -125,6 +138,36 @@ class Client:
         file_info, _ = s.recvfrom(4096)
         print(file_info.decode("utf-8"))
     
+    def get_versions(self, sdfs_filename, versions, local_filename):
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        dst_addr = (self.get_namenode_host(), NAME_NODE_PORT)
+        data = "get " + sdfs_filename
+        s.sendto(data.encode("utf-8"), dst_addr)
+        replicas, _ = s.recvfrom(4096)
+        replicas = replicas.decode("utf-8").split(" ")
+        s.close()
+
+        for replica in replicas:
+            # write to local
+            try:
+                for v in range(versions):
+                    c = zerorpc.Client(timeout=10)
+                    c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
+                    content, version = c.get_file_version(sdfs_filename, v)
+                    c.close()
+                    if version >= 0:
+                        f = open(local_filename + ",v" + version, 'wb')
+                        f.write(content)
+                    elif version == -1:
+                        print("Not other previous version.")
+                        return
+                    elif version == -2:
+                        print("Failed, please try again.")
+                print("Success.")
+                return
+            except:
+                continue
+        print("Fail, please try again.")
 
 c = Client()
 c.run()
