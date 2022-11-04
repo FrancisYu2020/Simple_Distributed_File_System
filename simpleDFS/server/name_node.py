@@ -175,15 +175,13 @@ class NameNode:
             print("No such file")
             return
         replicas = self.ft.files[sdfs_name].replicas
-        try:
-            for r in replicas:
-                c = zerorpc.Client(10)
-                c.connect("tcp://" + r + ":" + DATA_NODE_PORT)
-                c.delete_file(sdfs_name)
-                c.close()
-                self.ft.files[sdfs_name].replicas.remove(r)
-        except:
-            return False
+        for r in replicas:
+            c = zerorpc.Client(10)
+            c.connect("tcp://" + r + ":" + DATA_NODE_PORT)
+            c.delete_file(sdfs_name)
+            c.close()
+            self.ft.files[sdfs_name].replicas.remove(r)
+        
         self.ft.delete_file(sdfs_name)
         self.nt.delete_file(sdfs_name)
         return True
