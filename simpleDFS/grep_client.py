@@ -78,8 +78,8 @@ class Client:
         print("Total lines are %d" % self.total_lines)
 
 if __name__=="__main__":
-    if len(sys.argv) < 4:
-        print("Error: Input arguments are not sufficient, you should use 'grep_client -c/-Ec [pattern] Datanode/Namenode'")
+    if len(sys.argv) < 3:
+        print("Error: Input arguments are not sufficient")
     else:
         s = ' '.join(sys.argv[1:])
         c = Client(s)
