@@ -95,8 +95,8 @@ class DataNode:
         return " ".join(list(set(ret)))
 
 def run_data_node():
-    grep_server = threading.Thread(target = grep_server.server_program)
-    grep_server.start()
+    grep_t = threading.Thread(target = grep_server.server_program)
+    grep_t.start()
     s = zerorpc.Server(DataNode())
     s.bind("tcp://0.0.0.0:" + DATA_NODE_PORT)
     print("DataNode Server is running!")
