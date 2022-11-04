@@ -3,6 +3,12 @@ import os
 from collections import defaultdict
 import logging
 
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                    datefmt='%m-%d %H:%M',
+                    filename='Datanode.log',
+                    filemode='w')
 DATA_NODE_PORT = "4242"
 
 class DataNode:
@@ -24,6 +30,7 @@ class DataNode:
             c.put_file(sdfs_filename, content, replicas[1:])
             c.close()
         self.file_info[sdfs_filename] += 1
+        logging.info("Put file " + filename + ", current version is " + str(self.file_info[sdfs_filename]))
 
     def get_file(self, sdfs_filename):
         print("Try to get file: " + sdfs_filename)
@@ -31,6 +38,7 @@ class DataNode:
         if not os.path.isfile(filepath):
             print("No file")
             return
+        logging.info("Get file " + sdfs_filename + ", current version is " + str(self.file_info[sdfs_filename]))
         return open(filepath, "rb").read()
     
     def get_file_version(self, sdfs_filename, v):
@@ -41,6 +49,7 @@ class DataNode:
         if not os.path.isfile(filepath):
             print("No file: " + filepath)
             return "", -2
+        logging.info("Get file " + sdfs_filename + "for specific version: " + str(self.file_info[sdfs_filename] - v))
         return open(filepath, "rb").read(), self.file_info[sdfs_filename] - v
 
     def delete_file(self, sdfs_filename):
@@ -52,8 +61,10 @@ class DataNode:
             filepath = os.path.join(os.getcwd() + "/store", sdfs_filename + ",v" + str(v))
             os.remove(filepath)
         del self.file_info[sdfs_filename]
+        logging.info("Delete file " + sdfs_filename)
     
     def rreplica(self, new_replicas, sdfs_filename):
+        logging.info("Rereplica file " + sdfs_filename + " to " + str(new_replicas))
         for replica in new_replicas:
             for v in range(1, self.file_info[sdfs_filename] + 1):
                 filepath = os.path.join(os.getcwd() + "/store", sdfs_filename + ",v" + str(v))
@@ -64,6 +75,7 @@ class DataNode:
                 c.close()
 
     def rebuild(self, sdfs_filename, content, v):
+        logging.info("Rebuild file " + sdfs_filename)
         filename = sdfs_filename + ",v" + str(v)
         filepath = os.path.join(os.getcwd() + "/store", filename)
         f = open(filepath, "wb")
@@ -78,12 +90,14 @@ class DataNode:
             return ""
         files = os.listdir(os.getcwd() + "/store")
         ret = [file.split(",")[0] for file in files]
+        logging.info("Heartbeat: " + " ".join(list(set(ret))))
         return " ".join(list(set(ret)))
 
 def run_data_node():
     s = zerorpc.Server(DataNode())
     s.bind("tcp://0.0.0.0:" + DATA_NODE_PORT)
     print("DataNode Server is running!")
+    logging.info("DataNode Start")
     s.run()
 
 run_data_node()

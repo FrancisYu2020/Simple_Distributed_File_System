@@ -112,6 +112,7 @@ class NameNode:
         Use heartbeat message to rebuild name node
         '''
         print("Initial mode...")
+        logging.info("Initial Namenode...")
         for node in self.ml:
             c = zerorpc.Client()
             c.connect("tcp://" + node + ":" + DATA_NODE_PORT)
@@ -126,14 +127,18 @@ class NameNode:
                     self.ft.insert_file(file, [node])
                 else:
                     self.ft.update_replicas(file, node)
+        logging.info("Cur Files: ")
         for file in self.ft.files.keys():
             print(repr(self.ft.files[file]))
+            logging.info(repr(self.ft.files[file]))
         print("Finsih initial mode!")
+        logging.info("Finsih Initial Namenode.")
     
     def rreplica(self, need_num, cur_replicas, filename):
         '''
         rebuild the file of fail node to new replicas
         '''
+        logging.warning("Safe Checker: Start rereplica for " + filename)
         new_replicas = self.__find_rebuild_replicas(need_num, cur_replicas)
         replica = cur_replicas[0]
         c = zerorpc.Client(timeout = 10)
@@ -142,6 +147,7 @@ class NameNode:
         c.close()
         for r in new_replicas:
             self.ft.files[filename].replicas.add(r)
+        logging.warning("Safe Checker: New replica contains " + str(new_replicas))
         return
 
     def safe_checker(self):
@@ -149,14 +155,17 @@ class NameNode:
         check all files to make sure all files have enough replicas
         '''
         print("Safe checker is running...")
+        logging.info("Safe Checker start")
         while True:
             try:
                 for file in self.ft.files.keys():
                     replica_num = len(self.ft.files[file].replicas)
                     if replica_num < 4:
+                        logging.warning("Safe Checker: File " + file + " lack " + str(4 - replica_num) + " replica(s).")
                         self.rreplica(4 - replica_num, list(self.ft.files[file].replicas), file)
                 time.sleep(1)
-            except:
+            except Exception as e:
+                logging.error("Safe Checker: Rereplica Failed. Start try again...")
                 continue
         return 
 
