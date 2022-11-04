@@ -1,6 +1,7 @@
 import zerorpc
 import os
 from collections import defaultdict
+import logging
 
 DATA_NODE_PORT = "4242"
 

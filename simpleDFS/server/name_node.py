@@ -5,8 +5,13 @@ from multiprocessing import Queue, Process
 import threading
 import socket
 import time
+import logging
 
-
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                    datefmt='%m-%d %H:%M',
+                    filename='Namenode.log',
+                    filemode='w')
 DATA_NODE_PORT = "4242"
 NAME_NODE_PORT = 4241
 work_queue = Queue(1000)
@@ -41,7 +46,7 @@ class FileTable:
     
     def delete_file(self, filename):
         if filename not in self.files:
-            print("No such file")
+            # print("No such file")
             return
         del self.files[filename]
 
@@ -171,9 +176,11 @@ class NameNode:
             return
 
     def delete_file(self, sdfs_name):
+        # logging.info("Namenode is deleting file: " + sdfs_name)
         print("Namenode is deleting file: ", sdfs_name)
         if sdfs_name not in self.ft.files:
             print("No such file")
+            # logging.info("No such file")
             return
         replicas = self.ft.files[sdfs_name].replicas
         print(replicas)
@@ -184,6 +191,7 @@ class NameNode:
                 c.delete_file(sdfs_name)
                 c.close()
         except Exception as e:
+            logging.error(str(e))
             print(e)
             return False
         self.ft.delete_file(sdfs_name)
@@ -220,9 +228,11 @@ def run():
     # safe_checker = 
     # name_node.safe_checker()
     print("NameNode is running")
+    logging.info("NameNode Start")
     pro = Process(target=name_node.producer)
     pro.start()
     print("Consumer is running")
+    logging.info("Consumer Start")
     while True:
         command, client_addr = work_queue.get()
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -231,31 +241,38 @@ def run():
                 args = command.split(" ")
                 if args[0] == "put":
                     print("Receive put request")
+                    logging.info("Receive put request: " + args[1])
                     data = " ".join(name_node.put_file(args[1])).encode("utf-8")
                     s.sendto(data, client_addr)
                 elif args[0] == "get":
                     print("Receive get request")
+                    logging.info("Receive get request: " + args[1])
                     data = name_node.get_file(args[1])
                     if not data:
                         data = ""
                     s.sendto(data.encode("utf-8"), client_addr)
                 elif args[0] == "delete":
-                    print("Receive delete request, the request is " + command)
+                    print("Receive delete request")
+                    logging.info("Receive delete request: " + args[1])
                     if name_node.delete_file(args[1]):
                         data = "ack"
                     else:
                         data = "nack"
                     s.sendto(data.encode("utf-8"), client_addr)
                 elif args[0] == "ls":
+                    print("Receive ls request: " + args[1])
+                    logging.info("Receive ls request: " + args[1])
                     data = name_node.ls(args[1])
                     if not data:
                         data = "Oops! No such file."
                     s.sendto(data.encode("utf-8"), client_addr)
                 elif args[0] == "store":
+                    logging.info("Receive ls request")
                     data = name_node.store(client_addr[0]).encode("utf-8")
                     s.sendto(data, client_addr)
             except Exception as e:
                 print(e)
+                logging.error("Operation failed" + str(e))
                 data = "Operation failed, please try again.".encode("utf-8")
                 s.sendto(data, client_addr)
         else:

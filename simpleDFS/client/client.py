@@ -1,5 +1,6 @@
 import zerorpc
 import socket
+import logging
 
 DATA_NODE_PORT = "4242"
 NAME_NODE_PORT = 4241
@@ -75,7 +76,6 @@ class Client:
         s.sendto(data.encode("utf-8"), dst_addr)
         replicas, _ = s.recvfrom(4096)
         replicas = replicas.decode("utf-8").split(" ")
-        print(replicas)
         s.close()
 
         content = open(local_filename, "rb").read()
