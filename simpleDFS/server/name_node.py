@@ -171,6 +171,7 @@ class NameNode:
             return
 
     def delete_file(self, sdfs_name):
+        print("Namenode is deleting file: ", sdfs_name)
         if sdfs_name not in self.ft.files:
             print("No such file")
             return
@@ -235,7 +236,7 @@ def run():
                     data = name_node.get_file(args[1]).encode("utf-8")
                     s.sendto(data, client_addr)
                 elif args[0] == "delete":
-                    print("Receive delete request")
+                    print("Receive delete request, the request is " + command)
                     if name_node.delete_file(args[1]):
                         data = "ack"
                     else:
