@@ -2,7 +2,9 @@ from collections import defaultdict
 import hashlib
 import zerorpc
 from multiprocessing import Queue, Process
+import threading
 import socket
+import time
 
 
 DATA_NODE_PORT = "4242"
@@ -71,6 +73,8 @@ class NameNode:
                 "fa22-cs425-2203.cs.illinois.edu", "fa22-cs425-2204.cs.illinois.edu",
                 "fa22-cs425-2205.cs.illinois.edu"]
         self.work_queue = Queue(1000)
+        checker = threading.Thread(target=self.safe_checker)
+        checker.start()
 
     def __hash_sdfs_name(self, sdfs_name):
         '''
@@ -135,21 +139,20 @@ class NameNode:
             self.ft.files[filename].replicas.add(r)
         return
 
-    def safe_mode(self):
+    def safe_checker(self):
         '''
         check all files to make sure all files have enough replicas
         '''
-        print("Safe mode...")
+        print("Safe checker is running...")
         while True:
             try:
                 for file in self.ft.files.keys():
                     replica_num = len(self.ft.files[file].replicas)
                     if replica_num < 4:
                         self.rreplica(4 - replica_num, list(self.ft.files[file].replicas), file)
-                break
+                time.sleep(1)
             except:
                 continue
-        print("Finish safe mode!")
         return 
 
 
@@ -174,10 +177,11 @@ class NameNode:
         replicas = self.ft.files[sdfs_name].replicas
         try:
             for r in replicas:
-                c = zerorpc.Client()
+                c = zerorpc.Client(10)
                 c.connect("tcp://" + r + ":" + DATA_NODE_PORT)
                 c.delete_file(sdfs_name)
                 c.close()
+                self.ft.files[sdfs_name].replicas.remove(r)
         except:
             return False
         self.ft.delete_file(sdfs_name)
@@ -190,8 +194,7 @@ class NameNode:
         return repr(self.ft.files[sdfs_name])
 
     def store(self, client):
-        print(client)
-        c = zerorpc.Client()
+        c = zerorpc.Client(5)
         c.connect("tcp://" + client + ":" + DATA_NODE_PORT)
         return c.heartbeat()
     
@@ -212,7 +215,8 @@ class NameNode:
 def run():
     name_node = NameNode()
     name_node.initial_mode()
-    name_node.safe_mode()
+    # safe_checker = 
+    # name_node.safe_checker()
     print("NameNode is running")
     pro = Process(target=name_node.producer)
     pro.start()
@@ -221,29 +225,33 @@ def run():
         command, client_addr = work_queue.get()
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         if command:
-            args = command.split(" ")
-            if args[0] == "put":
-                print("Receive put request")
-                data = " ".join(name_node.put_file(args[1])).encode("utf-8")
-                s.sendto(data, client_addr)
-            elif args[0] == "get":
-                print("Receive get request")
-                data = name_node.get_file(args[1]).encode("utf-8")
-                s.sendto(data, client_addr)
-            elif args[0] == "delete":
-                print("Receive delete request")
-                if name_node.delete_file(args[1]):
-                    data = "ack"
-                else:
-                    data = "nack"
-                s.sendto(data.encode("utf-8"), client_addr)
-            elif args[0] == "ls":
-                data = name_node.ls(args[1])
-                if not data:
-                    data = "Oops! No such file."
-                s.sendto(data.encode("utf-8"), client_addr)
-            elif args[0] == "store":
-                data = name_node.store(client_addr[0]).encode("utf-8")
+            try:
+                args = command.split(" ")
+                if args[0] == "put":
+                    print("Receive put request")
+                    data = " ".join(name_node.put_file(args[1])).encode("utf-8")
+                    s.sendto(data, client_addr)
+                elif args[0] == "get":
+                    print("Receive get request")
+                    data = name_node.get_file(args[1]).encode("utf-8")
+                    s.sendto(data, client_addr)
+                elif args[0] == "delete":
+                    print("Receive delete request")
+                    if name_node.delete_file(args[1]):
+                        data = "ack"
+                    else:
+                        data = "nack"
+                    s.sendto(data.encode("utf-8"), client_addr)
+                elif args[0] == "ls":
+                    data = name_node.ls(args[1])
+                    if not data:
+                        data = "Oops! No such file."
+                    s.sendto(data.encode("utf-8"), client_addr)
+                elif args[0] == "store":
+                    data = name_node.store(client_addr[0]).encode("utf-8")
+                    s.sendto(data, client_addr)
+            except:
+                data = "Operation failed, please try again.".encode("utf-8")
                 s.sendto(data, client_addr)
         else:
             s.close()
