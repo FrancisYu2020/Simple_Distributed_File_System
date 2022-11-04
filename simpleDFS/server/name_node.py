@@ -235,8 +235,10 @@ def run():
                     s.sendto(data, client_addr)
                 elif args[0] == "get":
                     print("Receive get request")
-                    data = name_node.get_file(args[1]).encode("utf-8")
-                    s.sendto(data, client_addr)
+                    data = name_node.get_file(args[1])
+                    if not data:
+                        data = ""
+                    s.sendto(data.encode("utf-8"), client_addr)
                 elif args[0] == "delete":
                     print("Receive delete request, the request is " + command)
                     if name_node.delete_file(args[1]):
