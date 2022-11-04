@@ -179,11 +179,11 @@ class NameNode:
         print(replicas)
         try:
             for r in replicas:
-                c = zerorpc.Client(10)
+                c = zerorpc.Client(timeout=10)
                 c.connect("tcp://" + r + ":" + DATA_NODE_PORT)
                 c.delete_file(sdfs_name)
                 c.close()
-                # self.ft.files[sdfs_name].replicas.remove(r)
+                self.ft.files[sdfs_name].replicas.remove(r)
         except Exception as e:
             print(e)
             return False
