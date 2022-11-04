@@ -154,6 +154,7 @@ class Client:
                     c = zerorpc.Client(timeout=10)
                     c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
                     content, version = c.get_file_version(sdfs_filename, v)
+                    print(version)
                     c.close()
                     if version >= 0:
                         f = open(local_filename + ",v" + version, 'wb')

@@ -38,7 +38,7 @@ class DataNode:
             return "", -1
         filepath = os.path.join(os.getcwd() + "/store", sdfs_filename + ",v" + str(self.file_info[sdfs_filename] - v))
         if not os.path.isfile(filepath):
-            print("No file")
+            print("No file: " + filepath)
             return "", -2
         return open(filepath, "rb").read(), self.file_info[sdfs_filename] - v
 
