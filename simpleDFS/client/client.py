@@ -35,21 +35,18 @@ class Client:
             if len(args) == 3:
                 if args[0] == "put":
                     self.put(args[1], args[2])
-                    print("Put Success")
                 elif args[0] == "get":
                     self.get(args[1], args[2])
-                    print("Get Success")
                 else:
-                    print("Invalid Input! If you need any help, please type help for instructions.")
+                    print("Invalid Input! If you need any help, please type 'help' for instructions.")
                     continue
             elif len(args) == 2:
                 if args[0] == "delete":
                     self.delete(args[1])
-                    print("Delete Success")
                 elif args[0] == "ls":
                     self.ls(args[1])
                 else:
-                    print("Invalid Input! If you need any help, please type help for instructions.")
+                    print("Invalid Input! If you need any help, please type 'help' for instructions.")
                     continue
             elif len(args) == 4:
                 if args[0] == "get-versions":
@@ -57,7 +54,9 @@ class Client:
                     numversions = args[2]
                     localfilename = args[3]
                     self.get_versions(sdfs_filename, int(numversions), localfilename)
-
+                else:
+                    print("Invalid Input! If you need any help, please type 'help' for instructions.")
+                    continue
             elif len(args) == 1:
                 if args[0] == "store":
                     self.store()
@@ -66,7 +65,7 @@ class Client:
                 elif args[0] == "help":
                     self.printCommands()
                 else:
-                    print("Invalid Input! If you need any help, please type help for instructions.")
+                    print("Invalid Input! If you need any help, please type 'help' for instructions.")
                     continue
             
     def put(self, local_filename, sdfs_filename):

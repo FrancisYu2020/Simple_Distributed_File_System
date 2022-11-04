@@ -107,6 +107,8 @@ class NameNode:
             c = zerorpc.Client()
             c.connect("tcp://" + node + ":" + DATA_NODE_PORT)
             node_info = c.heartbeat()
+            if not node_info:
+                continue
             files = node_info.split(" ")
             c.close()
             for file in files:
@@ -170,11 +172,14 @@ class NameNode:
             print("No such file")
             return
         replicas = self.ft.files[sdfs_name].replicas
-        for r in replicas:
-            c = zerorpc.Client()
-            c.connect("tcp://" + r + ":" + DATA_NODE_PORT)
-            c.delete_file(sdfs_name)
-            c.close()
+        try:
+            for r in replicas:
+                c = zerorpc.Client()
+                c.connect("tcp://" + r + ":" + DATA_NODE_PORT)
+                c.delete_file(sdfs_name)
+                c.close()
+        except:
+            return False
         self.ft.delete_file(sdfs_name)
         self.nt.delete_file(sdfs_name)
         return True
@@ -192,7 +197,6 @@ class NameNode:
         print("Producer is running")
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         localaddr = (socket.gethostname(), NAME_NODE_PORT)
-        print(localaddr)
         udp_socket.bind(localaddr)
         while True:
             command, client_addr = udp_socket.recvfrom(4096)
