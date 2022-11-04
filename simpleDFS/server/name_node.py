@@ -180,7 +180,7 @@ class NameNode:
             c.connect("tcp://" + r + ":" + DATA_NODE_PORT)
             c.delete_file(sdfs_name)
             c.close()
-            self.ft.files[sdfs_name].replicas.remove(r)
+            # self.ft.files[sdfs_name].replicas.remove(r)
         
         self.ft.delete_file(sdfs_name)
         self.nt.delete_file(sdfs_name)
