@@ -16,7 +16,7 @@ def grep(request):
     print(args)
     if len(args) != 4 or args[0] != 'grep' or (args[1] != '-c' and args[1] != '-Ec'):
         return "Wrong format! Correct format: `grep -c pattern` or `grep -Ec pattern`"
-    res = "{file}:{line_count}\n".format(file=args[3] + '.log', line_count=0)
+    res = ''
     pattern = args[2]
     if pattern[0] == '\"' and pattern[-1] == '\"':
         pattern = pattern[1:-1]
@@ -40,7 +40,7 @@ def grep(request):
                 res += "{file}:{line_count}\n".format(file=file, line_count=ec_cnt)
             else:
                 return "Only grep -c / -Ec options are supported!"
-    return res
+    return res if res else "{file}:{line_count}\n".format(file=args[3] + '.log', line_count=0)
 
 
 def server_program():
