@@ -149,6 +149,7 @@ class Client:
 
         for replica in replicas:
             # write to local
+            print(replica)
             try:
                 for v in range(versions):
                     c = zerorpc.Client(timeout=10)
