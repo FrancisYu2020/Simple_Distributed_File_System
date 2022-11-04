@@ -252,7 +252,8 @@ def run():
                 elif args[0] == "store":
                     data = name_node.store(client_addr[0]).encode("utf-8")
                     s.sendto(data, client_addr)
-            except:
+            except Exception as e:
+                print(e)
                 data = "Operation failed, please try again.".encode("utf-8")
                 s.sendto(data, client_addr)
         else:

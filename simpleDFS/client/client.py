@@ -94,7 +94,9 @@ class Client:
         replicas, _ = s.recvfrom(4096)
         replicas = replicas.decode("utf-8").split(" ")
         s.close()
-
+        if not replicas:
+            print("Oops, no such file.")
+            return
         for replica in replicas:
             # write to local
             try:
@@ -119,6 +121,8 @@ class Client:
         s.close()
         if ack.decode("utf-8") == "nack":
             print("Fail")
+        else:
+            print("Success")
         return
     
     def ls(self, sdfs_filename):
