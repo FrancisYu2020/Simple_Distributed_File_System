@@ -155,7 +155,7 @@ class Client:
                     c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
                     content, version = c.get_file_version(sdfs_filename, v)
                     c.close()
-                    if version >= 0:
+                    if version > 0:
                         f = open(local_filename + ",v" + str(version), 'wb')
                         f.write(content)
                     elif version == -1:
