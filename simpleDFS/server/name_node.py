@@ -185,6 +185,8 @@ class NameNode:
         return True
 
     def ls(self, sdfs_name):
+        if sdfs_name not in self.ft.files:
+            return
         return repr(self.ft.files[sdfs_name])
 
     def store(self, client):
@@ -236,8 +238,10 @@ def run():
                     data = "nack"
                 s.sendto(data.encode("utf-8"), client_addr)
             elif args[0] == "ls":
-                data = name_node.ls(args[1]).encode("utf-8")
-                s.sendto(data, client_addr)
+                data = name_node.ls(args[1])
+                if not data:
+                    data = "Oops! No such file."
+                s.sendto(data.encode("utf-8"), client_addr)
             elif args[0] == "store":
                 data = name_node.store(client_addr[0]).encode("utf-8")
                 s.sendto(data, client_addr)

@@ -34,7 +34,7 @@ class DataNode:
     
     def get_file_version(self, sdfs_filename, v):
         print("Try to get file: " + sdfs_filename)
-        if v > self.file_info[sdfs_filename]:
+        if v >= self.file_info[sdfs_filename]:
             return "", -1
         filepath = os.path.join(os.getcwd() + "/store", sdfs_filename + ",v" + str(self.file_info[sdfs_filename] - v))
         if not os.path.isfile(filepath):
