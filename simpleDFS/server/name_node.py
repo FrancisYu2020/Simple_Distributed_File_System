@@ -175,6 +175,7 @@ class NameNode:
             print("No such file")
             return
         replicas = self.ft.files[sdfs_name].replicas
+        print(replicas)
         for r in replicas:
             c = zerorpc.Client(10)
             c.connect("tcp://" + r + ":" + DATA_NODE_PORT)
