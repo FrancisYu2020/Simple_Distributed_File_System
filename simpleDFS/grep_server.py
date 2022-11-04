@@ -14,7 +14,7 @@ def grep(request):
     """
     args = request.split()
     print(args)
-    if len(args) != 3 or args[0] != 'grep' or (args[1] != '-c' and args[1] != '-Ec'):
+    if len(args) != 4 or args[0] != 'grep' or (args[1] != '-c' and args[1] != '-Ec'):
         return "Wrong format! Correct format: `grep -c pattern` or `grep -Ec pattern`"
     res = ''
     pattern = args[2]
@@ -24,7 +24,7 @@ def grep(request):
     # put all files under current directory in a list
     files = [f for f in os.listdir('.') if os.path.isfile(f)]
     # filter to all *.log files
-    log_files = [f for f in files if f.endswith('.log')]
+    log_files = [f for f in files if f.endswith(args[3] + '.log')]
     # iterate all log files
     for file in log_files:
         with open(file, encoding="utf-8") as f:
