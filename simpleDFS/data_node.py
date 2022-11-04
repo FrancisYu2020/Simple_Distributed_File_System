@@ -2,7 +2,8 @@ import zerorpc
 import os
 from collections import defaultdict
 import logging
-
+import threading
+import grep_server
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
@@ -94,10 +95,14 @@ class DataNode:
         return " ".join(list(set(ret)))
 
 def run_data_node():
+    grep_server = threading.Thread(target = grep_server.server_program)
+    grep_server.start()
     s = zerorpc.Server(DataNode())
     s.bind("tcp://0.0.0.0:" + DATA_NODE_PORT)
     print("DataNode Server is running!")
     logging.info("DataNode Start")
     s.run()
+    grep_server.join()
+    
 
 run_data_node()
