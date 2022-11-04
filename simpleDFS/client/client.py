@@ -92,11 +92,12 @@ class Client:
         data = "get " + sdfs_filename
         s.sendto(data.encode("utf-8"), dst_addr)
         replicas, _ = s.recvfrom(4096)
-        replicas = replicas.decode("utf-8").split(" ")
+        replicas = replicas.decode("utf-8")
         s.close()
         if not replicas:
             print("Oops, no such file.")
             return
+        replicas = replicas.split(" ")
         for replica in replicas:
             # write to local
             try:
@@ -147,9 +148,13 @@ class Client:
         data = "get " + sdfs_filename
         s.sendto(data.encode("utf-8"), dst_addr)
         replicas, _ = s.recvfrom(4096)
-        replicas = replicas.decode("utf-8").split(" ")
+        replicas = replicas.decode("utf-8")
         s.close()
+        if not replicas:
+            print("Oops, no such file.")
+            return
 
+        replicas = replicas.split(" ")
         for replica in replicas:
             # write to local
             try:
