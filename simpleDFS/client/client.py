@@ -150,25 +150,24 @@ class Client:
         for replica in replicas:
             # write to local
             print(replica)
-            try:
-                for v in range(versions):
-                    c = zerorpc.Client(timeout=10)
-                    c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
-                    content, version = c.get_file_version(sdfs_filename, v)
-                    print(version)
-                    c.close()
-                    if version >= 0:
-                        f = open(local_filename + ",v" + version, 'wb')
-                        f.write(content)
-                    elif version == -1:
-                        print("Not other previous version.")
-                        return
-                    elif version == -2:
-                        print("Failed, please try again.")
-                print("Success.")
-                return
-            except:
-                continue
+            for v in range(versions):
+                c = zerorpc.Client(timeout=10)
+                c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
+                content, version = c.get_file_version(sdfs_filename, v)
+                print(version)
+                c.close()
+                if version >= 0:
+                    f = open(local_filename + ",v" + version, 'wb')
+                    f.write(content)
+                elif version == -1:
+                    print("Not other previous version.")
+                    return
+                elif version == -2:
+                    print("Failed, please try again.")
+            print("Success.")
+            return
+            # except:
+            #     continue
         print("Fail, please try again.")
 
 c = Client()
