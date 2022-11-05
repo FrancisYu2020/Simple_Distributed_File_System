@@ -160,8 +160,6 @@ class Server:
         # send ping to check neighbors alive every 300 ms
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((self.hostname, PING_PORT[self.hostID]))
-        s.listen(5)
-
         while 1:
             time.sleep(2)
             s.send("live".encode(), (self.master_host, PING_PORT[self.hostID]))
@@ -172,6 +170,7 @@ class Server:
         monitorID = int(monitor_host[13:15])
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((self.hostname, PING_PORT[monitorID]))
+        s.listen(5)
         conn, _ = s.accept()
         # s.settimeout(4)
         while(1):
