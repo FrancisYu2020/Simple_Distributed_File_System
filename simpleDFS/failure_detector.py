@@ -173,7 +173,8 @@ class Server:
         while(1):
             try:
                 s.recvfrom(4096)
-            except:
+            except Exception as e:
+                print("Error: " + str(e))
                 print("Host " + str(monitorID) + " Fail")
                 try:
                     s1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -181,7 +182,8 @@ class Server:
                     s1.send("you are dead".encode())
                     s1.close()
                 except:
-                    self.leave(monitor_host)
+                    pass
+                self.leave(monitor_host)
                 return
         
         
