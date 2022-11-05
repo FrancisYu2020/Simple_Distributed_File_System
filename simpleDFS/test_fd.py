@@ -26,9 +26,9 @@ class testFD:
             if command == "list_mem":
                 print(self.ML)
             elif command == "join":
-                self.join(args[1])
+                self.join(int(args[1]))
             elif command == "leave":
-                self.leave(args[1])
+                self.leave(int(args[1]))
             elif command == "help":
                 print("=======================================================")
                 print("1. list_mem: list current membership list in the ring")
