@@ -3,24 +3,24 @@ import data_node
 import fd
 from multiprocessing import Process
 import threading
-
-
-class Server:
-    def __init__(self):
-        self.fd = fd.Server("fa22-cs425-2205.cs.illinois.edu")
-        self.nn = name_node.NameNode(self.fd)
-        self.dn = data_node.DataNode()
-
-    def run(self):
-        t0 = threading.Thread(target=self.fd.run)
-        t1 = threading.Thread(target=self.nn.run_name_node)
-        t2 = threading.Thread(target=self.dn.run_data_node)
-        t1.start()
-        t0.start()
-        
-        t2.start()
     
 
 if __name__ == '__main__':
-    s = Server()
-    s.run()
+    MASTER_HOST = "fa22-cs425-2205.cs.illinois.edu"
+    failure_detector = fd.Server(MASTER_HOST)
+
+    
+    t0 = threading.Thread(target = name_node.run, args=[failure_detector])
+    # data node server thread
+    t1 = threading.Thread(target = data_node.run_data_node)
+    # failure detector
+    t2 = threading.Thread(target = failure_detector.run)
+    
+    t0.start()
+    t1.start()
+    t2.start()
+    
+    t0.join()
+    t1.join()
+    t2.join()
+

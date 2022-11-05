@@ -289,8 +289,8 @@ class NameNode:
             pass
 
 
-def run():
-    name_node = NameNode()
+def run(fd):
+    name_node = NameNode(fd)
     name_node.initial_mode()
     # safe_checker = 
     # name_node.safe_checker()
