@@ -337,6 +337,6 @@ class Server:
         t5.join()
         print('t5 join')
 
-s = Server()
-s.run()
-print("finish!")
+# s = Server()
+# s.run()
+# print("finish!")
