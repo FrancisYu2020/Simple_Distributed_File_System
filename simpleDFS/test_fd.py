@@ -1,5 +1,3 @@
-import threading
-
 class testFD:
     def __init__(self) -> None:
         self.ML = ["fa22-cs425-2201.cs.illinois.edu", "fa22-cs425-2202.cs.illinois.edu",
@@ -11,7 +9,7 @@ class testFD:
     
     def join(self, order):
         if self.all[order] not in self.ML:
-            self.ML.append(order)
+            self.ML.append(self.all[order])
     
     def leave(self, order):
         print(self.ML)
