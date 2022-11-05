@@ -143,9 +143,9 @@ class NameNode:
                 # print(new_ml)
                 for node in self.ml:
                     if node not in new_ml:
+                        print("remove " + node)
                         for _, file in self.ft.files.items():
                             if node in file.replicas:
-                                print("remove " + node)
                                 file.replicas.remove(node)
                 self.ml = new_ml
                 for file in self.ft.files.keys():
