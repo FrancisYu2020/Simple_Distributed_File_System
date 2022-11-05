@@ -6,8 +6,8 @@ import time
 import threading
 import sys
 
-MASTER_PORT = 2333
-PING_PORT = [2345 + i for i in range(10)]
+MASTER_PORT = 3333
+PING_PORT = [3345 + i for i in range(10)]
 ML_lock = threading.Lock()
 TS_lock = threading.Lock()
 
