@@ -9,10 +9,11 @@ import logging
 import failure_detector
 
 logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                    datefmt='%m-%d %H:%M:%S:%MS',
+                    format='%(asctime)s.%(msecs)03d %(levelname)s {%(module)s} [%(funcName)s] %(message)s',
+                    datefmt='%Y-%m-%d,%H:%M:%S'
                     filename='Namenode.log',
                     filemode='w')
+
 DATA_NODE_PORT = "4242"
 NAME_NODE_PORT = 4241
 work_queue = Queue(1000)
@@ -233,18 +234,23 @@ def run(fd):
                     logging.info("Receive put request: " + args[1])
                     replicas = name_node.put_file(args[1])
                     data = " ".join(replicas).encode("utf-8")
-                    s.sendto(data, client_addr)
+                    
+                    if args[1] not in name_node.ft.files:
+                        name_node.ft.insert_file(args[1], replicas)
 
+                    s.sendto(data, client_addr)
                     ack_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                     localaddr = (socket.gethostname(), ACK_PORT)
                     ack_socket.bind(localaddr)
                     ack_socket.settimeout(10)
-                    for _ in range(3):
-                        ack_socket.recvfrom(4096)
+                    try:
+                        for _ in range(3):
+                            ack_socket.recvfrom(4096)
+                    except:
+                        del name_node.ft.files[args[1]]
+                        raise "Put fail"
                     s.sendto("finish".encode("utf-8"), client_addr)
                     ack_socket.recvfrom(4096)
-                    if args[1] not in name_node.ft.files:
-                        name_node.ft.insert_file(args[1], replicas)
                     
                 elif args[0] == "get":
                     print("Receive get request")
