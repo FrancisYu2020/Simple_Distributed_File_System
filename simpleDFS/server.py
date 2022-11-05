@@ -1,13 +1,13 @@
 import name_node
 import data_node
-import fd
+import simpleDFS.failure_detector as failure_detector
 from multiprocessing import Process
 import threading
     
 
 
 MASTER_HOST = "fa22-cs425-2205.cs.illinois.edu"
-failure_detector = None
+fd = None
 t0 = threading.Thread(target = name_node.run, args=[failure_detector])
 # data node server thread
 t1 = threading.Thread(target = data_node.run_data_node)

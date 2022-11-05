@@ -6,7 +6,7 @@ import threading
 import socket
 import time
 import logging
-import fd
+import simpleDFS.failure_detector as failure_detector
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
@@ -51,31 +51,12 @@ class FileTable:
             return
         del self.files[filename]
 
-class NodeTable:
-    '''
-    class NodeTable
-    contains nodes and the files in the node
-    '''
-    def __init__(self):
-        self.nodes = defaultdict(set)
-        
-    
-    def insert_file(self, filename, replicas):
-        for r in replicas:
-            self.nodes[r].add(filename)
-    
-    def delete_file(self, filename):
-        for node in self.nodes.keys():
-            if filename in self.nodes[node]:
-                self.nodes[node].remove(filename)
-
 class NameNode:
     '''
     class NameNode
     '''
     def __init__(self, fd): 
         self.ft = FileTable()
-        self.nt = NodeTable()
         self.fd = fd
         self.ml = ["fa22-cs425-2201.cs.illinois.edu", "fa22-cs425-2202.cs.illinois.edu",
                 "fa22-cs425-2203.cs.illinois.edu", "fa22-cs425-2204.cs.illinois.edu",
@@ -125,7 +106,6 @@ class NameNode:
             files = node_info.split(" ")
             c.close()
             for file in files:
-                self.nt.insert_file(file, [node])
                 if file not in self.ft.files:
                     self.ft.insert_file(file, [node])
                 else:
@@ -178,7 +158,6 @@ class NameNode:
             replicas = self.__hash_sdfs_name(sdfs_name)
         else:
             replicas = list(self.ft.files[sdfs_name].replicas)
-            self.nt.insert_file(sdfs_name, replicas)
             self.ft.insert_file(sdfs_name, replicas)
         return replicas
 
@@ -209,7 +188,6 @@ class NameNode:
             print(e)
             return False
         self.ft.delete_file(sdfs_name)
-        self.nt.delete_file(sdfs_name)
         return True
 
     def ls(self, sdfs_name):
