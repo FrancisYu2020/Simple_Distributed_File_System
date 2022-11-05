@@ -130,7 +130,8 @@ class Server:
                     print("Node already exists in the ring!")
                     continue
                 # only a node join, mark its existance and timestamp and add to self.ML
-                new_t = threading.Thread(target=self.receive_ack, args=news[1])
+                # print(news[1])
+                new_t = threading.Thread(target=self.receive_ack, args=[news[1]])
                 new_t.start()
                 # with TS_lock:
                     # self.neighbor_timestamps[news[1]][0] = 1
