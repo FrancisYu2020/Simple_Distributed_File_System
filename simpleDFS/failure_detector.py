@@ -161,6 +161,10 @@ class Server:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((self.hostname, PING_PORT[self.hostID]))
         s.connect((self.master_host, PING_PORT[self.hostID]))
+        while True:
+            s.send("live".encode())
+            time.sleep(2)
+
 
     def receive_ack(self, monitor_host):
         if not self.is_master:
@@ -169,8 +173,9 @@ class Server:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((self.hostname, PING_PORT[monitorID]))
         s.listen(5)
+        conn, _ = s.accept()
         try:
-            conn, _ = s.accept()
+            conn.recv(100)
         except Exception as e:
             print("Error: " + str(e))
             print("Host " + str(monitorID) + " Fail")
