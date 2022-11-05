@@ -56,14 +56,13 @@ class Server:
             self.ML.append(self.hostname)
         else:
             # a common node join, do nothing but send a join request ["join", current node hostname] to master
+            t = threading.Thread(target=self.ping, name="heartbeat")
+            t.start()
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((self.master_host, MASTER_PORT))
             s.send(json.dumps(["join", self.hostname]).encode())
             s.close()
-            time.sleep(1)
-            t = threading.Thread(target=self.ping, name="heartbeat")
-            t.start()
-    
+            
     def leave(self, host=None):
         if host == None:
             # self.leave() leave the node itself from the ring
@@ -159,25 +158,25 @@ class Server:
         if self.is_master:
             return
         # send ping to check neighbors alive every 300 ms
-        s = socket.socket()
-        s.connect((self.master_host, PING_PORT[self.hostID]))
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind((self.hostname, PING_PORT[self.hostID]))
+        s.listen(5)
+        conn, _ = s.accept()
         while True:
-            s.send("live".encode("utf-8"))
-            time.sleep(2)
-        s.close()
+            conn.recv(100)
+
 
 
     def receive_ack(self, monitor_host):
         if not self.is_master:
             return
         monitorID = int(monitor_host[13:15])
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind((self.hostname, PING_PORT[monitorID]))
-        s.listen(5)
-        conn, _ = s.accept()
+        s = socket.socket()
+        s.connect((monitor_host, PING_PORT[monitorID]))
         while True:
             try:
-                conn.recv(100)
+                s.send("hi".encode("utf-8"))
             except Exception as e:
                 print("Error: " + str(e))
                 print("Host " + str(monitorID) + " Fail")
