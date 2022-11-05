@@ -239,14 +239,14 @@ def run(fd):
                     ack_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                     localaddr = (socket.gethostname(), ACK_PORT)
                     ack_socket.bind(localaddr)
-                    ack_socket.settimeout(10)
+                    ack_socket.settimeout(20)
                     for _ in range(3):
                         ack_socket.recvfrom(4096)
-                    s.sendto("finish".encode("utf-8"), client_addr)
-                    ack_socket.recvfrom(4096)
                     if args[1] not in name_node.ft.files:
                         name_node.ft.insert_file(args[1], replicas)
-                    
+                    ack_socket.recvfrom(4096)
+                    s.sendto("finish".encode("utf-8"), client_addr)
+                                       
                 elif args[0] == "get":
                     print("Receive get request")
                     logging.info("Receive get request: " + args[1])
