@@ -179,5 +179,5 @@ class Client:
                 continue
         print("Fail, please try again.")
 
-# c = Client()
-# c.run()
+c = Client()
+c.run()
