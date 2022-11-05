@@ -155,9 +155,9 @@ class NameNode:
     def put_file(self, sdfs_name):
         if sdfs_name not in self.ft.files:
             replicas = self.__hash_sdfs_name(sdfs_name)
+            self.ft.insert_file(sdfs_name, replicas)
         else:
             replicas = list(self.ft.files[sdfs_name].replicas)
-            self.ft.insert_file(sdfs_name, replicas)
         return replicas
 
     def get_file(self, sdfs_name):
