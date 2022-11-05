@@ -2,10 +2,14 @@ class testFD:
     def __init__(self) -> None:
         self.ML = ["fa22-cs425-2201.cs.illinois.edu", "fa22-cs425-2202.cs.illinois.edu",
                 "fa22-cs425-2203.cs.illinois.edu", "fa22-cs425-2204.cs.illinois.edu",
-                "fa22-cs425-2205.cs.illinois.edu"]
+                "fa22-cs425-2205.cs.illinois.edu", "fa22-cs425-2206.cs.illinois.edu", 
+                "fa22-cs425-2207.cs.illinois.edu", "fa22-cs425-2208.cs.illinois.edu", 
+                "fa22-cs425-2209.cs.illinois.edu", "fa22-cs425-22010.cs.illinois.edu"]
         self.all = ["fa22-cs425-2201.cs.illinois.edu", "fa22-cs425-2202.cs.illinois.edu",
                 "fa22-cs425-2203.cs.illinois.edu", "fa22-cs425-2204.cs.illinois.edu",
-                "fa22-cs425-2205.cs.illinois.edu"]
+                "fa22-cs425-2205.cs.illinois.edu", "fa22-cs425-2206.cs.illinois.edu", 
+                "fa22-cs425-2207.cs.illinois.edu", "fa22-cs425-2208.cs.illinois.edu", 
+                "fa22-cs425-2209.cs.illinois.edu", "fa22-cs425-22010.cs.illinois.edu"]
     
     def join(self, order):
         if self.all[order] not in self.ML:

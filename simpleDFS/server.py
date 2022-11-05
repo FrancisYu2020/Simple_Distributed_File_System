@@ -8,7 +8,7 @@ import socket
 
 if __name__ == '__main__':
     HOST = socket.gethostname()
-    MASTER_HOST = "fa22-cs425-2205.cs.illinois.edu"
+    MASTER_HOST = "fa22-cs425-2210.cs.illinois.edu"
     fd = test_fd.testFD()
     if HOST == MASTER_HOST:
         t0 = threading.Thread(target = name_node.run, args=[fd])
