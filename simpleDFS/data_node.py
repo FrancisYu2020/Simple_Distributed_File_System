@@ -17,6 +17,11 @@ class DataNode:
         self.file_info = defaultdict(int)   # sdfs_filename -> version
 
     def put_file(self, sdfs_filename, content, replicas):
+        forward_file_t = threading.Thread(target=self.forward_file, args=[sdfs_filename, content, replicas])
+        forward_file_t.start()
+        return
+
+    def forward_file(self, sdfs_filename, content, replicas):
         if not os.path.exists(os.getcwd() + "/store"):
             os.makedirs(os.getcwd() + "/store")
         print("Try to put file: " + sdfs_filename)
