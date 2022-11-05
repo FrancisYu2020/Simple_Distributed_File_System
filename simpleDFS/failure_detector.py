@@ -179,7 +179,7 @@ class Server:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.bind((self.hostname, PING_PORT[self.hostID]))
         while 1:
-            time.sleep(1)
+            time.sleep(0.5)
             s.sendto(self.hostname.encode(), (self.master_host, PING_PORT[self.hostID]))
 
     def receive_ack(self, monitorID):
