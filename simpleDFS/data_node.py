@@ -110,4 +110,4 @@ def run_data_node():
     grep_server.join()
     
 
-run_data_node()
+# run_data_node()
