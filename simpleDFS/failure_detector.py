@@ -56,6 +56,8 @@ class Server:
             self.ML.append(self.hostname)
         else:
             # a common node join, do nothing but send a join request ["join", current node hostname] to master
+            t = threading.Thread(target=self.ping)
+            t.start()
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((self.master_host, MASTER_PORT))
             s.send(json.dumps(["join", self.hostname]).encode())
@@ -158,7 +160,7 @@ class Server:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.bind((self.hostname, PING_PORT[self.hostID]))
         while 1:
-            time.sleep(1)
+            time.sleep(0.5)
             s.sendto(self.hostname.encode(), (self.master_host, PING_PORT[self.hostID]))
 
     def receive_ack(self, monitor_host):
@@ -213,14 +215,14 @@ class Server:
         tm = threading.Thread(target=self.listen_join_and_leave, name="listen_join_and_leave")
         tn = threading.Thread(target=self.listen_to_master, name="listen_to_master")
         t1 = threading.Thread(target=self.shell, name="shell")
-        t2 = threading.Thread(target=self.ping, name="ping")
+        # t2 = threading.Thread(target=self.ping, name="ping")
         # t3 = [threading.Thread(target=self.receive_ack, name=f"receive_ack {i}", args=[i]) for i in range(10)]
         # t4 = threading.Thread(target=self.check_neighbors_alive, name="check_neighbors_alive")
 
         tm.start()
         tn.start()
         t1.start()
-        t2.start()
+        # t2.start()
         # for i in range(10):
         #     t3[i].start()
         # t4.start()
@@ -231,11 +233,11 @@ class Server:
         print('tn join')
         t1.join()
         print('t1 join')
-        t2.join()
-        print('t2 join')
+        # t2.join()
+        # print('t2 join')
         # for i in range(10):
         #     t3[i].join()
-        print('t3 join')
+        # print('t3 join')
         # t4.join()
         print('t4 join')
 
