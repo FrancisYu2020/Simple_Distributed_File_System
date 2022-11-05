@@ -18,6 +18,7 @@ class Server:
     def __init__(self, master_host="fa22-cs425-2210.cs.illinois.edu"):
         self.hostname = socket.gethostname()
         self.master_host = master_host
+        print(self.master_host, self.hostname)
         if self.hostname == self.master_host:
             print("I am the master node -^.^- ")
         else:
