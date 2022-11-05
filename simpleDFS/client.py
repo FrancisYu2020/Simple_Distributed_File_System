@@ -107,7 +107,7 @@ class Client:
             return
         replicas = replicas.split(" ")
 
-        quorum, version = 0
+        quorum = version = 0
         write_content = None
         for replica in replicas:
             # write to local
