@@ -153,7 +153,7 @@ class NameNode:
                         self.rreplica(4 - replica_num, list(self.ft.files[file].replicas), file)
                 time.sleep(1)
             except Exception as e:
-                logging.error("Safe Checker: Rereplica Failed. Start try again...")
+                logging.error("Safe Checker: Rereplica Failed. " + str(e) + " Start try again...")
                 continue
         return 
 
