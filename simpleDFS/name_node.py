@@ -16,6 +16,7 @@ logging.basicConfig(level=logging.INFO,
 DATA_NODE_PORT = "4242"
 NAME_NODE_PORT = 4241
 work_queue = Queue(1000)
+ACK_PORT = 4243
 
 class File:
     '''
@@ -85,9 +86,6 @@ class NameNode:
                     ret.append(m)
                     break
         return ret
-    
-    def __update_ml():
-        return
 
     def initial_mode(self):
         '''
@@ -156,7 +154,7 @@ class NameNode:
     def put_file(self, sdfs_name):
         if sdfs_name not in self.ft.files:
             replicas = self.__hash_sdfs_name(sdfs_name)
-            self.ft.insert_file(sdfs_name, replicas)
+            # self.ft.insert_file(sdfs_name, replicas)
         else:
             replicas = list(self.ft.files[sdfs_name].replicas)
         return replicas
@@ -234,8 +232,21 @@ def run(fd):
                 if args[0] == "put":
                     print("Receive put request")
                     logging.info("Receive put request: " + args[1])
-                    data = " ".join(name_node.put_file(args[1])).encode("utf-8")
+                    replicas = name_node.put_file(args[1])
+                    data = " ".join(replicas).encode("utf-8")
                     s.sendto(data, client_addr)
+
+                    ack_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    localaddr = (socket.gethostname(), ACK_PORT)
+                    ack_socket.bind(localaddr)
+                    ack_socket.settimeout(10)
+                    for _ in range(3):
+                        ack_socket.recvfrom(4096)
+                    s.sendto("finish".encode("utf-8"), client_addr)
+                    ack_socket.recvfrom(4096)
+                    if args[1] not in name_node.ft.files:
+                        name_node.ft.insert_file(args[1], replicas)
+                    
                 elif args[0] == "get":
                     print("Receive get request")
                     logging.info("Receive get request: " + args[1])

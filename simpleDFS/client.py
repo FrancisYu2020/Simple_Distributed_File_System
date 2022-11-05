@@ -1,6 +1,6 @@
 import zerorpc
 import socket
-import logging
+import os
 
 DATA_NODE_PORT = "4242"
 NAME_NODE_PORT = 4241
@@ -77,15 +77,21 @@ class Client:
         replicas, _ = s.recvfrom(4096)
         replicas = replicas.decode("utf-8").split(" ")
         
-
+        if not os.path.exists(local_filename):
+            print("No such local file, please try again.")
+            return
         content = open(local_filename, "rb").read()
         c = zerorpc.Client()
         c.connect("tcp://" + replicas[0] + ":" + DATA_NODE_PORT)
         c.put_file(sdfs_filename, content, replicas[1:])
         c.close()
-        
+        s.settimeout(10)
+        finish, _ = s.recvfrom(4096)
         s.close()
-        print("Put Success.")
+        if finish.decode("utf-8") == "finsih":
+            print("Put Success.")
+        else:
+            print("Fail")
     
     def get(self, sdfs_filename, local_filename):
         # get address

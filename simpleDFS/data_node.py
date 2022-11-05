@@ -4,17 +4,23 @@ from collections import defaultdict
 import logging
 import threading
 import grep_server
+import socket
+
+DATA_NODE_PORT = "4242"
+ACK_PORT = 4243
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                     datefmt='%m-%d %H:%M',
                     filename='Datanode.log',
                     filemode='w')
-DATA_NODE_PORT = "4242"
 
 class DataNode:
     def __init__(self):
         self.file_info = defaultdict(int)   # sdfs_filename -> version
+    
+    def get_namenode_host():
+        return "fa22-cs425-2210.cs.illinois.edu"
 
     def put_file(self, sdfs_filename, content, replicas):
         forward_file_t = threading.Thread(target=self.forward_file, args=[sdfs_filename, content, replicas])
@@ -35,6 +41,13 @@ class DataNode:
             c.connect("tcp://" + replicas[0] + ":" + DATA_NODE_PORT)
             c.put_file(sdfs_filename, content, replicas[1:])
             c.close()
+
+        ack = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        dst_addr = (self.get_namenode_host(), ACK_PORT)
+        data = "ack"
+        ack.sendto(data.encode("utf-8"), dst_addr)
+        ack.close()
+
         self.file_info[sdfs_filename] += 1
         logging.info("Put file " + filename + ", current version is " + str(self.file_info[sdfs_filename]))
 
