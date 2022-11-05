@@ -6,7 +6,6 @@ import threading
 import socket
 import time
 import logging
-import failure_detector
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
