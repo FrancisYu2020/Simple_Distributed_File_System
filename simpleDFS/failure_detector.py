@@ -163,10 +163,13 @@ class Server:
                         # print(self.neighbor_timestamps)
                         # some node leave or failed
                         self.neighbor_timestamps[host][0] = 0
-                        s1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        s1.connect((host, MASTER_PORT))
-                        s1.send("you are dead".encode())
-                        s1.close()
+                        try:
+                            s1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                            s1.connect((host, MASTER_PORT))
+                            s1.send("you are dead".encode())
+                            s1.close()
+                        except:
+                            pass
                         self.leave(host)
     
     def ping(self):
