@@ -214,7 +214,7 @@ class Server:
         t1 = threading.Thread(target=self.shell, name="shell")
         t2 = threading.Thread(target=self.ping, name="ping")
         # t3 = [threading.Thread(target=self.receive_ack, name=f"receive_ack {i}", args=[i]) for i in range(10)]
-        t4 = threading.Thread(target=self.check_neighbors_alive, name="check_neighbors_alive")
+        # t4 = threading.Thread(target=self.check_neighbors_alive, name="check_neighbors_alive")
 
         tm.start()
         tn.start()
@@ -222,7 +222,7 @@ class Server:
         t2.start()
         # for i in range(10):
         #     t3[i].start()
-        t4.start()
+        # t4.start()
         print('all threads started!')
         tm.join()
         print('tm join')
@@ -235,7 +235,7 @@ class Server:
         # for i in range(10):
         #     t3[i].join()
         print('t3 join')
-        t4.join()
+        # t4.join()
         print('t4 join')
 
 # s = Server()
