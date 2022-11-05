@@ -60,6 +60,7 @@ class Server:
             s.connect((self.master_host, MASTER_PORT))
             s.send(json.dumps(["join", self.hostname]).encode())
             s.close()
+            time.sleep(1)
             t = threading.Thread(target=self.ping, name="heartbeat")
             t.start()
     
@@ -187,6 +188,7 @@ class Server:
             except:
                 pass    
             self.leave(monitor_host)
+            s.close()
             return
         
         # s.settimeout(4)
