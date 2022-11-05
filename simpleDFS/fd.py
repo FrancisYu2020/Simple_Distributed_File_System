@@ -15,7 +15,7 @@ MONITOR_PORT = 3456
 ML_lock = threading.Lock()
 
 class Server:
-    def __init__(self, master_host="fa22-cs425-2210.cs.illinois.edu"):
+    def __init__(self, master_host="fa22-cs425-2205.cs.illinois.edu"):
         self.hostname = socket.gethostname()
         self.master_host = master_host
         print(self.master_host, self.hostname)
