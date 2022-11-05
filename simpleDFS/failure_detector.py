@@ -162,7 +162,7 @@ class Server:
         s.bind((self.hostname, PING_PORT[self.hostID]))
         s.connect((self.master_host, PING_PORT[self.hostID]))
         while True:
-            s.send("live".encode())
+            s.send("live".encode("utf-8"))
             time.sleep(2)
 
 
@@ -175,7 +175,7 @@ class Server:
         s.listen(5)
         conn, _ = s.accept()
         try:
-            conn.recv(100)
+            ack, _ = conn.recv(100)
         except Exception as e:
             print("Error: " + str(e))
             print("Host " + str(monitorID) + " Fail")
