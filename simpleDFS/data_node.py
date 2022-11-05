@@ -84,14 +84,17 @@ class DataNode:
     
     def rreplica(self, new_replicas, sdfs_filename):
         logging.info("Rereplica file " + sdfs_filename + " to " + str(new_replicas))
-        for replica in new_replicas:
-            for v in range(1, self.file_info[sdfs_filename] + 1):
-                filepath = os.path.join(os.getcwd() + "/store", sdfs_filename + ",v" + str(v))
-                content = open(filepath, "rb").read()
-                c = zerorpc.Client()
-                c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
-                c.rebuild(sdfs_filename, content, v)
-                c.close()
+        try:
+            for replica in new_replicas:
+                for v in range(1, self.file_info[sdfs_filename] + 1):
+                    filepath = os.path.join(os.getcwd() + "/store", sdfs_filename + ",v" + str(v))
+                    content = open(filepath, "rb").read()
+                    c = zerorpc.Client()
+                    c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
+                    c.rebuild(sdfs_filename, content, v)
+                    c.close()
+        except Exception as e:
+            logging.ERROR("Replica failed, error is : " + str(e))
 
     def rebuild(self, sdfs_filename, content, v):
         logging.info("Rebuild file " + sdfs_filename)
