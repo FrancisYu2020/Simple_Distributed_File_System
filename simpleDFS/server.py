@@ -7,7 +7,7 @@ import threading
 
 
 MASTER_HOST = "fa22-cs425-2205.cs.illinois.edu"
-failure_detector = fd.Server(MASTER_HOST)
+failure_detector = None
 t0 = threading.Thread(target = name_node.run, args=[failure_detector])
 # data node server thread
 t1 = threading.Thread(target = data_node.run_data_node)
