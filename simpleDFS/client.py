@@ -106,17 +106,24 @@ class Client:
             print("Oops, no such file.")
             return
         replicas = replicas.split(" ")
+
+        quorum, version = 0
+        write_content = None
         for replica in replicas:
             # write to local
             try:
                 c = zerorpc.Client(timeout=10)
                 c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
-                content = c.get_file(sdfs_filename)
+                content, v = c.get_file(sdfs_filename)
                 c.close()
-                f = open(local_filename, 'wb')
-                f.write(content)
-                print("Get Success.")
-                return
+                if v > version:
+                    version, write_content = v, content
+                quorum += 1
+                if quorum == 2 or len(replicas) == 1:
+                    f = open(local_filename, 'wb')
+                    f.write(write_content)
+                    print("Get Success.")
+                    return
             except:
                 continue
         print("Fail, please try again.")

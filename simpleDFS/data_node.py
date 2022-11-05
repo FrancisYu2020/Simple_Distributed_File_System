@@ -58,7 +58,7 @@ class DataNode:
             print("No file")
             return
         logging.info("Get file " + sdfs_filename + ", current version is " + str(self.file_info[sdfs_filename]))
-        return open(filepath, "rb").read()
+        return open(filepath, "rb").read(), self.file_info[sdfs_filename]
     
     def get_file_version(self, sdfs_filename, v):
         print("Try to get file: " + sdfs_filename)
