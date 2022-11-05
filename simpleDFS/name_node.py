@@ -142,9 +142,9 @@ class NameNode:
                 new_ml = self.fd.ML
                 for node in self.ml:
                     if node not in new_ml:
-                        for _, replicas in self.ft.files.items():
-                            if node in replicas:
-                                replicas.remove(node)
+                        for _, file in self.ft.files.items():
+                            if node in file.replicas:
+                                file.replicas.remove(node)
                 self.ml = new_ml
                 for file in self.ft.files.keys():
                     replica_num = len(self.ft.files[file].replicas)
