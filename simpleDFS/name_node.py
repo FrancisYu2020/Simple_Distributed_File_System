@@ -10,7 +10,7 @@ import failure_detector
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                    datefmt='%m-%d %H:%M',
+                    datefmt='%m-%d %H:%M:%S:%MS',
                     filename='Namenode.log',
                     filemode='w')
 DATA_NODE_PORT = "4242"
@@ -126,7 +126,7 @@ class NameNode:
         c.close()
         for r in new_replicas:
             self.ft.files[filename].replicas.add(r)
-        logging.warning("Safe Checker: New replica contains " + str(new_replicas))
+        logging.warning("Safe Checker: Finish! New replica contains " + str(new_replicas))
         return
 
     def safe_checker(self):
