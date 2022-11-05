@@ -76,13 +76,15 @@ class Client:
         s.sendto(data.encode("utf-8"), dst_addr)
         replicas, _ = s.recvfrom(4096)
         replicas = replicas.decode("utf-8").split(" ")
-        s.close()
+        
 
         content = open(local_filename, "rb").read()
         c = zerorpc.Client()
         c.connect("tcp://" + replicas[0] + ":" + DATA_NODE_PORT)
         c.put_file(sdfs_filename, content, replicas[1:])
         c.close()
+        
+        s.close()
         print("Put Success.")
     
     def get(self, sdfs_filename, local_filename):
