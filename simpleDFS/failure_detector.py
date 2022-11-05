@@ -160,9 +160,7 @@ class Server:
         # send ping to check neighbors alive every 300 ms
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((self.hostname, PING_PORT[self.hostID]))
-        while 1:
-            time.sleep(2)
-            s.send("live".encode(), (self.master_host, PING_PORT[self.hostID]))
+        s.connect((MASTER_PORT,))
 
     def receive_ack(self, monitor_host):
         if not self.is_master:
@@ -171,24 +169,38 @@ class Server:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((self.hostname, PING_PORT[monitorID]))
         s.listen(5)
-        conn, _ = s.accept()
-        # s.settimeout(4)
-        while(1):
+        try:
+            conn, _ = s.accept()
+        except Exception as e:
+            print("Error: " + str(e))
+            print("Host " + str(monitorID) + " Fail")
             try:
-                conn.recv()
-            except Exception as e:
-                print("Error: " + str(e))
-                print("Host " + str(monitorID) + " Fail")
-                try:
-                    s1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    s1.connect((monitor_host, MASTER_PORT))
-                    s1.send("you are dead".encode())
-                    s1.close()
-                except:
-                    pass
+                s1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s1.connect((monitor_host, MASTER_PORT))
+                s1.send("you are dead".encode())
+                s1.close()
+            except:
+                pass    
+            self.leave(monitor_host)
+            return
+        
+        # s.settimeout(4)
+        # while(1):
+        #     try:
+        #         conn.recv()
+        #     except Exception as e:
+        #         print("Error: " + str(e))
+        #         print("Host " + str(monitorID) + " Fail")
+        #         try:
+        #             s1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #             s1.connect((monitor_host, MASTER_PORT))
+        #             s1.send("you are dead".encode())
+        #             s1.close()
+        #         except:
+        #             pass
                 
-                self.leave(monitor_host)
-                return
+        #         self.leave(monitor_host)
+        #         return
         
         
 
