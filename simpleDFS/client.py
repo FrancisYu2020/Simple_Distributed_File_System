@@ -88,7 +88,7 @@ class Client:
         s.settimeout(10)
         finish, _ = s.recvfrom(4096)
         s.close()
-        if finish.decode("utf-8") == "finsih":
+        if finish.decode("utf-8") == "finish":
             print("Put Success.")
         else:
             print("Fail")
