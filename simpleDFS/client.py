@@ -119,13 +119,17 @@ class Client:
                 if v > version:
                     version, write_content = v, content
                 quorum += 1
-                if quorum == 2 or len(replicas) == 1:
+                if quorum == 2:
                     f = open(local_filename, 'wb')
                     f.write(write_content)
                     print("Get Success.")
                     return
             except:
                 continue
+        if quorum == 1:
+            f = open(local_filename, 'wb')
+            f.write(write_content)
+            print("Get Success.")
         print("Fail, please try again.")
     
     def delete(self, sdfs_filename):
