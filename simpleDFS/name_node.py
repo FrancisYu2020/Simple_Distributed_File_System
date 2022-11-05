@@ -58,9 +58,7 @@ class NameNode:
     def __init__(self, fd): 
         self.ft = FileTable()
         self.fd = fd
-        self.ml = ["fa22-cs425-2201.cs.illinois.edu", "fa22-cs425-2202.cs.illinois.edu",
-                "fa22-cs425-2203.cs.illinois.edu", "fa22-cs425-2204.cs.illinois.edu",
-                "fa22-cs425-2205.cs.illinois.edu"]
+        self.ml = self.fd.ML
         self.work_queue = Queue(1000)
         checker = threading.Thread(target=self.safe_checker)
         checker.start()
@@ -141,6 +139,7 @@ class NameNode:
         logging.info("Safe Checker start")
         while True:
             try:
+                self.ml = self.fd.ML
                 for file in self.ft.files.keys():
                     replica_num = len(self.ft.files[file].replicas)
                     if replica_num < 4:
