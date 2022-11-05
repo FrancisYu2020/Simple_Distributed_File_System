@@ -158,12 +158,12 @@ class Server:
         if self.is_master:
             return
         # send ping to check neighbors alive every 300 ms
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind((self.hostname, PING_PORT[self.hostID]))
+        s = socket.socket()
         s.connect((self.master_host, PING_PORT[self.hostID]))
         while True:
             s.send("live".encode("utf-8"))
             time.sleep(2)
+        s.close()
 
 
     def receive_ack(self, monitor_host):
@@ -175,7 +175,7 @@ class Server:
         s.listen(5)
         conn, _ = s.accept()
         try:
-            ack, _ = conn.recv(100)
+            conn.recv(100)
         except Exception as e:
             print("Error: " + str(e))
             print("Host " + str(monitorID) + " Fail")
