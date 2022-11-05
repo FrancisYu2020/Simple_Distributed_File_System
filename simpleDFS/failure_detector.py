@@ -56,7 +56,7 @@ class Server:
             self.ML.append(self.hostname)
         else:
             # a common node join, do nothing but send a join request ["join", current node hostname] to master
-            t = threading.Thread(target=self.ping)
+            t = threading.Thread(target=self.ping, name="heartbeat")
             t.start()
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((self.master_host, MASTER_PORT))
@@ -125,6 +125,7 @@ class Server:
                     continue
                 # directly remove the node from self.ML
                 self.ML = self.ML[:idx] + self.ML[idx+1:]
+                threading.Thread()
                 # with TS_lock:
                 #     self.neighbor_timestamps[news[1]][0] = 0
             elif news[0] == "join":
@@ -160,7 +161,7 @@ class Server:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.bind((self.hostname, PING_PORT[self.hostID]))
         while 1:
-            time.sleep(0.5)
+            time.sleep(1.5)
             s.sendto(self.hostname.encode(), (self.master_host, PING_PORT[self.hostID]))
 
     def receive_ack(self, monitor_host):
@@ -169,7 +170,7 @@ class Server:
         monitorID = int(monitor_host[13:15])
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.bind((self.hostname, PING_PORT[monitorID]))
-        s.settimeout(3)
+        s.settimeout(4)
         while(1):
             try:
                 s.recvfrom(4096)
