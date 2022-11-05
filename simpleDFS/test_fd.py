@@ -14,8 +14,10 @@ class testFD:
             self.ML.append(order)
     
     def leave(self, order):
+        print(self.ML)
         if self.all[order] in self.ML:
             self.ML.remove(self.all[order])
+        print(self.ML)
 
     def run(self):
         while 1:
