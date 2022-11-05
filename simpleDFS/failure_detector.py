@@ -160,7 +160,7 @@ class Server:
         # send ping to check neighbors alive every 300 ms
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((self.hostname, PING_PORT[self.hostID]))
-        s.connect((MASTER_PORT,socket.gethostname()))
+        s.connect((self.master_host, MASTER_PORT))
 
     def receive_ack(self, monitor_host):
         if not self.is_master:
