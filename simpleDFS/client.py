@@ -10,7 +10,7 @@ class Client:
         pass
     
     def get_namenode_host(self):
-        return "fa22-cs425-2205.cs.illinois.edu"
+        return "fa22-cs425-2210.cs.illinois.edu"
     
     def printCommands(self):
         commands = '''
