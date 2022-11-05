@@ -56,12 +56,12 @@ class Server:
             self.ML.append(self.hostname)
         else:
             # a common node join, do nothing but send a join request ["join", current node hostname] to master
-            t = threading.Thread(target=self.ping, name="heartbeat")
-            t.start()
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((self.master_host, MASTER_PORT))
             s.send(json.dumps(["join", self.hostname]).encode())
             s.close()
+            t = threading.Thread(target=self.ping, name="heartbeat")
+            t.start()
     
     def leave(self, host=None):
         if host == None:
