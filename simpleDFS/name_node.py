@@ -139,17 +139,9 @@ class NameNode:
         logging.info("Safe Checker start")
         while True:
             try:
-                new_ml = self.fd.ML
-                for node in self.ml:
-                    print(node)
-                    print(node not in new_ml)
-                    if node not in new_ml:
-                        print("remove " + node)
-                        for _, file in self.ft.files.items():
-                            if node in file.replicas:
-                                file.replicas.remove(node)
-                self.ml = new_ml
+                self.ml = self.fd.ML
                 for file in self.ft.files.keys():
+                    self.ft.files[file].replicas = self.ft.files[file].replicas.intersection(set(self.ml))
                     replica_num = len(self.ft.files[file].replicas)
                     if replica_num < 4:
                         logging.warning("Safe Checker: File " + file + " lack " + str(4 - replica_num) + " replica(s).")
