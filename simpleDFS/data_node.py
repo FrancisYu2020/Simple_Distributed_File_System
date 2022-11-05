@@ -19,7 +19,7 @@ class DataNode:
     def __init__(self):
         self.file_info = defaultdict(int)   # sdfs_filename -> version
     
-    def get_namenode_host():
+    def get_namenode_host(self):
         return "fa22-cs425-2210.cs.illinois.edu"
 
     def put_file(self, sdfs_filename, content, replicas):
