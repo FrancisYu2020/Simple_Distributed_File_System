@@ -153,12 +153,12 @@ class Server:
             return
         #TODO: check heartbeats
         while 1:
-            time.sleep(0.5) # sleep 500ms and check
+            time.sleep(2) # sleep 500ms and check
             currTime = self.timer.time()
             with TS_lock:
                 for host in self.neighbor_timestamps:
                     # node leave or fail must be in the ring and does not ping for over TTL second
-                    if self.neighbor_timestamps[host][0] and (currTime - self.neighbor_timestamps[host][1]) > 1.0:
+                    if self.neighbor_timestamps[host][0] and (currTime - self.neighbor_timestamps[host][1]) > 3.0:
                         print(host, currTime, self.neighbor_timestamps[host][1])
                         # print(self.neighbor_timestamps)
                         # some node leave or failed
