@@ -234,59 +234,6 @@ class NameNode:
             work_queue.put((command, client_addr))
         s.close()
         udp_socket.close()
-    
-    def run_name_node(self):
-        logging.info("NameNode Start")
-        pro = Process(target=self.producer)
-        pro.start()
-        print("Consumer is running")
-        logging.info("Consumer Start")
-        while True:
-            command, client_addr = work_queue.get()
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            if command:
-                try:
-                    args = command.split(" ")
-                    if args[0] == "put":
-                        print("Receive put request")
-                        logging.info("Receive put request: " + args[1])
-                        data = " ".join(self.put_file(args[1])).encode("utf-8")
-                        s.sendto(data, client_addr)
-                    elif args[0] == "get":
-                        print("Receive get request")
-                        logging.info("Receive get request: " + args[1])
-                        data = self.get_file(args[1])
-                        if not data:
-                            data = ""
-                        s.sendto(data.encode("utf-8"), client_addr)
-                    elif args[0] == "delete":
-                        print("Receive delete request")
-                        logging.info("Receive delete request: " + args[1])
-                        if self.delete_file(args[1]):
-                            data = "ack"
-                        else:
-                            data = "nack"
-                        s.sendto(data.encode("utf-8"), client_addr)
-                    elif args[0] == "ls":
-                        print("Receive ls request: " + args[1])
-                        logging.info("Receive ls request: " + args[1])
-                        data = self.ls(args[1])
-                        if not data:
-                            data = "Oops! No such file."
-                        s.sendto(data.encode("utf-8"), client_addr)
-                    elif args[0] == "store":
-                        logging.info("Receive ls request")
-                        data = self.store(client_addr[0]).encode("utf-8")
-                        s.sendto(data, client_addr)
-                except Exception as e:
-                    print(e)
-                    logging.error("Operation failed" + str(e))
-                    data = "Operation failed, please try again.".encode("utf-8")
-                    s.sendto(data, client_addr)
-            else:
-                s.close()
-                break
-            pass
 
 
 def run(fd):

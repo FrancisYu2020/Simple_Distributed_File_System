@@ -17,8 +17,11 @@ if __name__ == '__main__':
     t2 = threading.Thread(target = failure_detector.run)
     
     t0.start()
+    print("t0 start")
     t1.start()
+    print("t1 start")
     t2.start()
+    print("t2 start")
     
     t0.join()
     t1.join()
