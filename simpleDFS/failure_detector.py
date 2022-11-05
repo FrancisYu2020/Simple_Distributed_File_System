@@ -24,7 +24,7 @@ class Server:
             print("I am a pariah node :(")
         self.ML = []
         self.timer = time
-        self.neighbor_timestamps = {} # dict of key = hostname, value = [isInRing, timestamp], only used in master node to record a node status
+        # self.neighbor_timestamps = {} # dict of key = hostname, value = [isInRing, timestamp], only used in master node to record a node status
         self.init_timestamps()
     
     def init_timestamps(self):
@@ -32,7 +32,7 @@ class Server:
         with TS_lock:
             for i in range(1, 11):
                 host = "fa22-cs425-22%02d.cs.illinois.edu" % i
-                self.neighbor_timestamps[host] = [0, 0]
+                # self.neighbor_timestamps[host] = [0, 0]
 
     def get_neighbors(self):
         # If a node is not in the ring, self.ML = [] hence directly return []
@@ -123,23 +123,25 @@ class Server:
                     continue
                 # directly remove the node from self.ML
                 self.ML = self.ML[:idx] + self.ML[idx+1:]
-                with TS_lock:
-                    self.neighbor_timestamps[news[1]][0] = 0
+                # with TS_lock:
+                #     self.neighbor_timestamps[news[1]][0] = 0
             elif news[0] == "join":
                 if news[1] in self.ML:
                     print("Node already exists in the ring!")
                     continue
                 # only a node join, mark its existance and timestamp and add to self.ML
-                with TS_lock:
-                    self.neighbor_timestamps[news[1]][0] = 1
-                    self.neighbor_timestamps[news[1]][1] = self.timer.time()
+                new_t = threading.Thread(target=self.receive_ack, args=news[1])
+                new_t.start()
+                # with TS_lock:
+                    # self.neighbor_timestamps[news[1]][0] = 1
+                    # self.neighbor_timestamps[news[1]][1] = self.timer.time()
                 self.ML.append(news[1])
                 # print("master send join messages: ", self.ML)
             else:
                 raise NotImplementedError("TODO: fix bug in listen_join_and_leave, the received news has unrecognizable message header")
             # TODO: ask everyone to update their membership list
-            for host in self.neighbor_timestamps:
-                if host == self.master_host or not self.neighbor_timestamps[host][0]:
+            for host in self.ML:
+                if host == self.master_host:
                     continue
                 # broadcast the updated ML to every node marked in the ring
                 s1 = socket.socket()
@@ -147,30 +149,6 @@ class Server:
                 s1.send(json.dumps(self.ML).encode())
                 s1.close()
                 # print("successfully send ML: ", self.ML)
-
-    def check_neighbors_alive(self):
-        if not self.is_master:
-            return
-        #TODO: check heartbeats
-        while 1:
-            time.sleep(3.2) # sleep 500ms and check
-            currTime = self.timer.time()
-            with TS_lock:
-                for host in self.neighbor_timestamps:
-                    # node leave or fail must be in the ring and does not ping for over TTL second
-                    if self.neighbor_timestamps[host][0] and (currTime - self.neighbor_timestamps[host][1]) > 3.2:
-                        print(host, currTime, self.neighbor_timestamps[host][1])
-                        # print(self.neighbor_timestamps)
-                        # some node leave or failed
-                        self.neighbor_timestamps[host][0] = 0
-                        try:
-                            s1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                            s1.connect((host, MASTER_PORT))
-                            s1.send("you are dead".encode())
-                            s1.close()
-                        except:
-                            pass
-                        self.leave(host)
     
     def ping(self):
         if self.is_master:
@@ -182,20 +160,28 @@ class Server:
             time.sleep(1)
             s.sendto(self.hostname.encode(), (self.master_host, PING_PORT[self.hostID]))
 
-    def receive_ack(self, monitorID):
+    def receive_ack(self, monitor_host):
         if not self.is_master:
             return
+        monitorID = int(monitor_host[13:15])
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.bind((self.hostname, PING_PORT[monitorID]))
-        while 1:
-            ack, addr = s.recvfrom(4096)
-            # print("receive ack from ", ack.decode(), " ", addr)
-            ack_host = ack.decode()
-            with TS_lock:
-                # we do not care the ping from the node that has not join the ring already
-                if not self.neighbor_timestamps[ack_host][0]:
-                    continue
-                self.neighbor_timestamps[ack_host][1] = self.timer.time()
+        s.settimeout(3)
+        while(1):
+            try:
+                s.recvfrom(4096)
+            except:
+                print("Host " + str(monitorID) + " Fail")
+                try:
+                    s1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    s1.connect((monitor_host, MASTER_PORT))
+                    s1.send("you are dead".encode())
+                    s1.close()
+                except:
+                    self.leave(monitor_host)
+                return
+        
+        
 
     def shell(self):
         while 1:
@@ -227,15 +213,15 @@ class Server:
         tn = threading.Thread(target=self.listen_to_master, name="listen_to_master")
         t1 = threading.Thread(target=self.shell, name="shell")
         t2 = threading.Thread(target=self.ping, name="ping")
-        t3 = [threading.Thread(target=self.receive_ack, name=f"receive_ack {i}", args=[i]) for i in range(10)]
+        # t3 = [threading.Thread(target=self.receive_ack, name=f"receive_ack {i}", args=[i]) for i in range(10)]
         t4 = threading.Thread(target=self.check_neighbors_alive, name="check_neighbors_alive")
 
         tm.start()
         tn.start()
         t1.start()
         t2.start()
-        for i in range(10):
-            t3[i].start()
+        # for i in range(10):
+        #     t3[i].start()
         t4.start()
         print('all threads started!')
         tm.join()
@@ -246,8 +232,8 @@ class Server:
         print('t1 join')
         t2.join()
         print('t2 join')
-        for i in range(10):
-            t3[i].join()
+        # for i in range(10):
+        #     t3[i].join()
         print('t3 join')
         t4.join()
         print('t4 join')
