@@ -1,6 +1,6 @@
 import name_node
 import data_node
-# import failure_detector
+import failure_detector
 import test_fd
 import threading
 import socket
@@ -9,7 +9,8 @@ import socket
 if __name__ == '__main__':
     HOST = socket.gethostname()
     MASTER_HOST = "fa22-cs425-2210.cs.illinois.edu"
-    fd = test_fd.testFD()
+    # fd = test_fd.testFD()
+    fd = failure_detector.Server()
     if HOST == MASTER_HOST:
         t0 = threading.Thread(target = name_node.run, args=[fd])
     # data node server thread
