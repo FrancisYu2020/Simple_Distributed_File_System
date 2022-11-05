@@ -140,7 +140,10 @@ class NameNode:
         while True:
             try:
                 new_ml = self.fd.ML
-                # print(new_ml)
+                print("Old")
+                print(self.ml)
+                print("New")
+                print(new_ml)
                 for node in self.ml:
                     if node not in new_ml:
                         print("remove " + node)
