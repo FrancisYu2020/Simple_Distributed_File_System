@@ -175,21 +175,22 @@ class Server:
         s.bind((self.hostname, PING_PORT[monitorID]))
         s.listen(5)
         conn, _ = s.accept()
-        try:
-            conn.recv(100)
-        except Exception as e:
-            print("Error: " + str(e))
-            print("Host " + str(monitorID) + " Fail")
+        while True:
             try:
-                s1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s1.connect((monitor_host, MASTER_PORT))
-                s1.send("you are dead".encode())
-                s1.close()
-            except:
-                pass    
-            self.leave(monitor_host)
-            s.close()
-            return
+                conn.recv(100)
+            except Exception as e:
+                print("Error: " + str(e))
+                print("Host " + str(monitorID) + " Fail")
+                try:
+                    s1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    s1.connect((monitor_host, MASTER_PORT))
+                    s1.send("you are dead".encode())
+                    s1.close()
+                except:
+                    pass    
+                self.leave(monitor_host)
+                s.close()
+                return
         
         # s.settimeout(4)
         # while(1):
