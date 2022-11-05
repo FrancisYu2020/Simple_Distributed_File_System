@@ -270,4 +270,4 @@ def run(fd):
             s.close()
             break
 
-run()
+run(None)
