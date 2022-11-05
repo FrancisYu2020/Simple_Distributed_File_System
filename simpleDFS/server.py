@@ -15,8 +15,9 @@ class Server:
         t0 = threading.Thread(target=self.fd.run)
         t1 = threading.Thread(target=self.nn.run_name_node)
         t2 = threading.Thread(target=self.dn.run_data_node)
-        t0.start()
         t1.start()
+        t0.start()
+        
         t2.start()
     
 
