@@ -242,7 +242,8 @@ def run(fd):
         command, client_addr = work_queue.get()
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         if command:
-            try:
+            if 1:
+            # try:
                 args = command.split(" ")
                 if args[0] == "put":
                     print("Receive put request")
@@ -295,9 +296,10 @@ def run(fd):
                     logging.info("Receive ls request")
                     data = name_node.store(client_addr[0]).encode("utf-8")
                     s.sendto(data, client_addr)
-            except Exception as e:
-                print(e)
-                logging.error("Operation failed" + str(e))
+            else:
+            # except Exception as e:
+                # print(e)
+                # logging.error("Operation failed" + str(e))
                 data = "Operation failed, please try again.".encode("utf-8")
                 s.sendto(data, client_addr)
         else:
