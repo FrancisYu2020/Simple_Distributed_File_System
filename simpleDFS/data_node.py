@@ -8,7 +8,7 @@ import socket
 
 DATA_NODE_PORT = "4242"
 ACK_PORT = 4243
-ACK_PORTS = [5000 + i for i in range(10)]
+ACK_PORTS = [5000 + i for i in range(11)]
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
