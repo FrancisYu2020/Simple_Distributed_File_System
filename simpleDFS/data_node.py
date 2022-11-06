@@ -40,7 +40,7 @@ class DataNode:
         f.write(content)
         f.close()
         if replicas:
-            c = zerorpc.Client()
+            c = zerorpc.Client(timeout=30)
             c.connect("tcp://" + replicas[0] + ":" + DATA_NODE_PORT)
             c.put_file(sdfs_filename, content, replicas[1:])
             c.close()
@@ -52,7 +52,7 @@ class DataNode:
         ack.close()
 
         self.file_info[sdfs_filename] += 1
-        logging.info("Put file " + filename + ", current version is " + str(self.file_info[sdfs_filename] + "\n And forward to " + str(replicas)))
+        logging.info("Put file " + filename + ", current version is " + str(self.file_info[sdfs_filename] + "And forward to " + str(replicas)))
 
     def get_file(self, sdfs_filename):
         print("Try to get file: " + sdfs_filename)
@@ -92,7 +92,7 @@ class DataNode:
                 for v in range(1, self.file_info[sdfs_filename] + 1):
                     filepath = os.path.join(os.getcwd() + "/store", sdfs_filename + ",v" + str(v))
                     content = open(filepath, "rb").read()
-                    c = zerorpc.Client()
+                    c = zerorpc.Client(timeout=30)
                     c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
                     c.rebuild(sdfs_filename, content, v)
                     c.close()
