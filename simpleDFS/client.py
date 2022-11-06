@@ -2,8 +2,8 @@ import zerorpc
 import socket
 import os
 
-DATA_NODE_PORT = "4242"
-NAME_NODE_PORT = 4241
+DATA_NODE_PORT = "6242"
+NAME_NODE_PORT = 6241
 
 class Client:
     def __init__(self):

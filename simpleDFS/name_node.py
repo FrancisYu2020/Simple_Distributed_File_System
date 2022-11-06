@@ -14,11 +14,12 @@ logging.basicConfig(level=logging.INFO,
                     filemode='w')
 
 
-DATA_NODE_PORT = "4242"
-NAME_NODE_PORT = 4241
+DATA_NODE_PORT = "6242"
+NAME_NODE_PORT = 6241
+ACK_PORTS = [6000 + i for i in range(11)]
+
 work_queue = Queue(1000)
-ACK_PORT = 4243
-ACK_PORTS = [5000 + i for i in range(11)]
+
 
 
 class File:
