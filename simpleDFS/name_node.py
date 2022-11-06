@@ -264,6 +264,7 @@ def run(fd):
                     s.sendto(data, client_addr)
                     
                     while 1:
+                        print(name_node.done)
                         if len(name_node.done["DONE"]) == 3:
                             if args[1] not in name_node.ft.files:
                                 name_node.ft.insert_file(args[1], replicas)
