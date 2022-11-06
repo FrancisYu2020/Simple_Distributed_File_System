@@ -3,7 +3,7 @@ import socket
 import sys
 import time
 
-PORT = 20001
+PORT = 10001
 
 def get_host(number):
     '''

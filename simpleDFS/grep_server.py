@@ -3,7 +3,7 @@ import re
 import os
 
 HOST = socket.gethostname()
-PORT = 20001
+PORT = 10001
 
 
 def grep(request):
