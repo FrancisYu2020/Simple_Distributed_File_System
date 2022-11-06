@@ -18,7 +18,7 @@ DATA_NODE_PORT = "4242"
 NAME_NODE_PORT = 4241
 work_queue = Queue(1000)
 ACK_PORT = 4243
-ACK_PORTS = [5000 + i for i in range(1, 11)]
+ACK_PORTS = [5000 + i for i in range(11)]
 
 
 class File:
