@@ -222,7 +222,7 @@ def listen_ack(id, done, host):
     ack_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     localaddr = (socket.gethostname(), ACK_PORTS[id])
     ack_socket.bind(localaddr)
-    ack_socket.settimeout(30)
+    ack_socket.settimeout(90)
     try:
         ack_socket.recvfrom(4096)
         logging.info("Receive ack from " + host)
