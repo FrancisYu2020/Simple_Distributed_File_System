@@ -252,8 +252,8 @@ def run(fd):
 
                     ids = [int(r[13:15]) for r in replicas]
                     done = defaultdict(set)
-                    threads = [threading.Thread(target=listen_ack, args=[id[i], done, args[1]]) for i in ids]
-                    for t in threads:
+                    for i in ids:
+                        t = threading.Thread(target=listen_ack, args=[id[i], done, args[1]]) 
                         t.start()
 
                     data = " ".join(replicas).encode("utf-8")
