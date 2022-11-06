@@ -223,8 +223,10 @@ def listen_ack(id, done, host):
     ack_socket.settimeout(10)
     try:
         ack_socket.recvfrom(4096)
+        logging.INFO("Receive ack from " + host)
         done["DONE"].add(host)
     except:
+        logging.ERROR("Timeout for receive ack from " + host)
         done["FAIL"].add(host)
 
 def run(fd):
