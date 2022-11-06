@@ -30,15 +30,7 @@ class DataNode:
         forward_file_t.start()
         return
 
-    def forward_file(self, sdfs_filename, content, replicas):
-        if not os.path.exists(os.getcwd() + "/store"):
-            os.makedirs(os.getcwd() + "/store")
-        print("Try to put file: " + sdfs_filename)
-        filename = sdfs_filename + ",v" + str(self.file_info[sdfs_filename] + 1)
-        filepath = os.path.join(os.getcwd() + "/store", filename)
-        f = open(filepath, "wb")
-        f.write(content)
-        f.close()
+    def forward(self, sdfs_filename, content, replicas):
         print("Try to forward to:")
         logging.info("Try to forward")
         print(replicas)
@@ -47,9 +39,23 @@ class DataNode:
             c.connect("tcp://" + replicas[0] + ":" + DATA_NODE_PORT)
             c.put_file(sdfs_filename, content, replicas[1:])
             c.close()
-        logging.info("Forward end")
         print("Forward end")
+        logging.info("Forward end")
 
+
+    def forward_file(self, sdfs_filename, content, replicas):
+        if not os.path.exists(os.getcwd() + "/store"):
+            os.makedirs(os.getcwd() + "/store")
+        forward_t = threading.Thread(target=self.forward, args=[sdfs_filename, content, replicas])
+        forward_t.start()
+        print("Try to put file: " + sdfs_filename)
+        logging.info("Try to put file: " + sdfs_filename)
+        filename = sdfs_filename + ",v" + str(self.file_info[sdfs_filename] + 1)
+        filepath = os.path.join(os.getcwd() + "/store", filename)
+        f = open(filepath, "wb")
+        f.write(content)
+        f.close()
+        logging.info("Put file end: " + sdfs_filename)
         ack = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         dst_addr = (self.get_namenode_host(), ACK_PORTS[self.host_id])
         data = "ack"
