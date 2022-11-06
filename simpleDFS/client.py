@@ -70,6 +70,10 @@ class Client:
                     continue
             
     def put(self, local_filename, sdfs_filename):
+        if not os.path.exists(local_filename):
+            print("No such local file, please try again.")
+            return
+        
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         dst_addr = (self.get_namenode_host(), NAME_NODE_PORT)
         data = "put " + sdfs_filename
@@ -77,9 +81,6 @@ class Client:
         replicas, _ = s.recvfrom(4096)
         replicas = replicas.decode("utf-8").split(" ")
         
-        if not os.path.exists(local_filename):
-            print("No such local file, please try again.")
-            return
         content = open(local_filename, "rb").read()
         c = zerorpc.Client()
         c.connect("tcp://" + replicas[0] + ":" + DATA_NODE_PORT)
