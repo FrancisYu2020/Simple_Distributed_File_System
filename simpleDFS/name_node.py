@@ -66,6 +66,7 @@ class NameNode:
         self.fd = fd
         self.ml = self.fd.ML
         self.work_queue = Queue(1000)
+        self.done = None
         checker = threading.Thread(target=self.safe_checker)
         checker.start()
 
@@ -253,8 +254,8 @@ def run(fd):
                     replicas = name_node.put_file(args[1])
 
                     ids = [int(r[13:15]) for r in replicas]
-                    done = defaultdict(set)
-                    threads = [threading.Thread(target=listen_ack, args=[id, done, replicas[i]]) for i, id in enumerate(ids)]
+                    name_node.done = defaultdict(set)
+                    threads = [threading.Thread(target=listen_ack, args=[id, name_node.done, replicas[i]]) for i, id in enumerate(ids)]
                     for t in threads:
                         t.start()
 
@@ -262,12 +263,12 @@ def run(fd):
                     s.sendto(data, client_addr)
                     
                     while 1:
-                        if len(done["DONE"]) == 3:
+                        if len(name_node.done["DONE"]) == 3:
                             if args[1] not in name_node.ft.files:
                                 name_node.ft.insert_file(args[1], replicas)
                             s.sendto("finish".encode("utf-8"), client_addr)
                             break
-                        if (len(done["DONE"]) + len(done["FAIL"])) == len(replicas):
+                        if (len(name_node.done["DONE"]) + len(name_node.done["FAIL"])) == len(replicas):
                             s.sendto("fail".encode("utf-8"), client_addr)
                             break
                         time.sleep(0.2)
