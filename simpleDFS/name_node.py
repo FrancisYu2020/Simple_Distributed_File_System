@@ -127,7 +127,7 @@ class NameNode:
         logging.warning("Safe Checker: Start rereplica for " + filename)
         new_replicas = self.__find_rebuild_replicas(need_num, cur_replicas)
         replica = cur_replicas[0]
-        c = zerorpc.Client(timeout = 10)
+        c = zerorpc.Client(timeout = 30)
         c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
         c.rreplica(new_replicas, filename)
         c.close()
@@ -184,7 +184,7 @@ class NameNode:
         # print(replicas)
         try:
             for r in replicas:
-                c = zerorpc.Client(timeout=10)
+                c = zerorpc.Client(timeout=30)
                 c.connect("tcp://" + r + ":" + DATA_NODE_PORT)
                 c.delete_file(sdfs_name)
                 c.close()
@@ -201,7 +201,7 @@ class NameNode:
         return repr(self.ft.files[sdfs_name])
 
     def store(self, client):
-        c = zerorpc.Client(timeout=5)
+        c = zerorpc.Client(timeout=30)
         c.connect("tcp://" + client + ":" + DATA_NODE_PORT)
         return c.heartbeat()
     
@@ -222,7 +222,7 @@ def listen_ack(id, done, host):
     ack_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     localaddr = (socket.gethostname(), ACK_PORTS[id])
     ack_socket.bind(localaddr)
-    ack_socket.settimeout(10)
+    ack_socket.settimeout(30)
     try:
         ack_socket.recvfrom(4096)
         logging.info("Receive ack from " + host)
@@ -264,7 +264,7 @@ def run(fd):
                     s.sendto(data, client_addr)
                     
                     while 1:
-                        # print(name_node.done)
+                        print(name_node.done)
                         if len(name_node.done["DONE"]) >= 3 or len(name_node.done["DONE"]) == len(replicas):
                             if args[1] not in name_node.ft.files:
                                 name_node.ft.insert_file(args[1], replicas)

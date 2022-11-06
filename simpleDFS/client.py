@@ -86,7 +86,7 @@ class Client:
         c.connect("tcp://" + replicas[0] + ":" + DATA_NODE_PORT)
         c.put_file(sdfs_filename, content, replicas[1:])
         c.close()
-        s.settimeout(10)
+        s.settimeout(30)
         finish, _ = s.recvfrom(4096)
         s.close()
         print(finish.decode("utf-8"))
@@ -114,7 +114,7 @@ class Client:
         for replica in replicas:
             # write to local
             try:
-                c = zerorpc.Client(timeout=10)
+                c = zerorpc.Client(timeout=30)
                 c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
                 content, v = c.get_file(sdfs_filename)
                 c.close()
@@ -180,7 +180,7 @@ class Client:
             # write to local
             try:
                 for v in range(versions):
-                    c = zerorpc.Client(timeout=10)
+                    c = zerorpc.Client(timeout=30)
                     c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
                     content, version = c.get_file_version(sdfs_filename, v)
                     c.close()
