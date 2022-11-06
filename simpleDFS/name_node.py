@@ -274,6 +274,7 @@ def run(fd):
                             s.sendto("fail".encode("utf-8"), client_addr)
                             break
                         time.sleep(0.2)
+                    logging.info("Finish put request: " + args[1])
                     
                 elif args[0] == "get":
                     print("Receive get request")
@@ -290,6 +291,7 @@ def run(fd):
                     else:
                         data = "nack"
                     s.sendto(data.encode("utf-8"), client_addr)
+                    logging.info("Finish delete request: " + args[1])
                 elif args[0] == "ls":
                     print("Receive ls request: " + args[1])
                     logging.info("Receive ls request: " + args[1])
