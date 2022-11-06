@@ -18,12 +18,13 @@ if __name__ == '__main__':
     # failure detector
     t2 = threading.Thread(target = fd.run)
     
+    t1.start()
+    t2.start()
     if HOST == MASTER_HOST:
         t0.start()
     # print("t0 start")
-    t1.start()
     # print("t1 start")
-    t2.start()
+    
     # print("t2 start")
     
     if HOST == MASTER_HOST:
