@@ -127,7 +127,7 @@ class NameNode:
         logging.warning("Safe Checker: Start rereplica for " + filename)
         new_replicas = self.__find_rebuild_replicas(need_num, cur_replicas)
         replica = cur_replicas[0]
-        c = zerorpc.Client(timeout = 30)
+        c = zerorpc.Client(timeout = None)
         c.connect("tcp://" + replica + ":" + DATA_NODE_PORT)
         c.rreplica(new_replicas, filename)
         c.close()
@@ -184,7 +184,7 @@ class NameNode:
         # print(replicas)
         try:
             for r in replicas:
-                c = zerorpc.Client(timeout=30)
+                c = zerorpc.Client(timeout=None)
                 c.connect("tcp://" + r + ":" + DATA_NODE_PORT)
                 c.delete_file(sdfs_name)
                 c.close()
@@ -201,7 +201,7 @@ class NameNode:
         return repr(self.ft.files[sdfs_name])
 
     def store(self, client):
-        c = zerorpc.Client(timeout=30)
+        c = zerorpc.Client(timeout=None)
         c.connect("tcp://" + client + ":" + DATA_NODE_PORT)
         return c.heartbeat()
     
