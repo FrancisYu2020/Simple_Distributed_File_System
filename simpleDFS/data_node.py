@@ -52,7 +52,7 @@ class DataNode:
         ack.close()
 
         self.file_info[sdfs_filename] += 1
-        logging.info("Put file " + filename + ", current version is " + str(self.file_info[sdfs_filename]))
+        logging.info("Put file " + filename + ", current version is " + str(self.file_info[sdfs_filename] + "\n And forward to " + str(replicas)))
 
     def get_file(self, sdfs_filename):
         print("Try to get file: " + sdfs_filename)
