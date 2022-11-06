@@ -243,12 +243,8 @@ def run(fd):
                     localaddr = (socket.gethostname(), ACK_PORT)
                     ack_socket.bind(localaddr)
                     ack_socket.settimeout(10)
-                    try:
-                        for _ in range(3):
-                            ack_socket.recvfrom(4096)
-                    except:
-                        del name_node.ft.files[args[1]]
-                        raise "Put fail"
+                    for _ in range(3):
+                        ack_socket.recvfrom(4096)
                     s.sendto("finish".encode("utf-8"), client_addr)
                     ack_socket.recvfrom(4096)
                     
