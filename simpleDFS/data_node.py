@@ -134,7 +134,7 @@ class DataNode:
 def run_data_node():
     grep_t = threading.Thread(target = grep_server.server_program)
     grep_t.start()
-    s = zerorpc.Server(DataNode())
+    s = zerorpc.Server(DataNode(), heartbeat=60)
     s.bind("tcp://0.0.0.0:" + DATA_NODE_PORT)
     print("DataNode Server is running!")
     logging.info("DataNode Start")
