@@ -191,24 +191,6 @@ class Server:
                 s.close()
                 return
         
-        # s.settimeout(4)
-        # while(1):
-        #     try:
-        #         conn.recv()
-        #     except Exception as e:
-        #         print("Error: " + str(e))
-        #         print("Host " + str(monitorID) + " Fail")
-        #         try:
-        #             s1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #             s1.connect((monitor_host, MASTER_PORT))
-        #             s1.send("you are dead".encode())
-        #             s1.close()
-        #         except:
-        #             pass
-                
-        #         self.leave(monitor_host)
-        #         return
-        
         
 
     def shell(self):
@@ -240,17 +222,10 @@ class Server:
         tm = threading.Thread(target=self.listen_join_and_leave, name="listen_join_and_leave")
         tn = threading.Thread(target=self.listen_to_master, name="listen_to_master")
         t1 = threading.Thread(target=self.shell, name="shell")
-        # t2 = threading.Thread(target=self.ping, name="ping")
-        # t3 = [threading.Thread(target=self.receive_ack, name=f"receive_ack {i}", args=[i]) for i in range(10)]
-        # t4 = threading.Thread(target=self.check_neighbors_alive, name="check_neighbors_alive")
 
         tm.start()
         tn.start()
         t1.start()
-        # t2.start()
-        # for i in range(10):
-        #     t3[i].start()
-        # t4.start()
         print('all threads started!')
         tm.join()
         print('tm join')
@@ -258,14 +233,4 @@ class Server:
         print('tn join')
         t1.join()
         print('t1 join')
-        # t2.join()
-        # print('t2 join')
-        # for i in range(10):
-        #     t3[i].join()
-        # print('t3 join')
-        # t4.join()
         print('t4 join')
-
-# s = Server()
-# s.run()
-# print("finish!")

@@ -6,7 +6,6 @@ import threading
 import socket
 import time
 import logging
-import failure_detector
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s.%(msecs)03d %(levelname)s {%(module)s} [%(funcName)s] %(message)s',
@@ -14,10 +13,13 @@ logging.basicConfig(level=logging.INFO,
                     filename='Namenode.log',
                     filemode='w')
 
+
 DATA_NODE_PORT = "4242"
 NAME_NODE_PORT = 4241
 work_queue = Queue(1000)
 ACK_PORT = 4243
+ACK_PORTS = [5000 + i for i in range(1, 11)]
+
 
 class File:
     '''
@@ -27,6 +29,8 @@ class File:
     def __init__(self, filename):
         self.filename = filename
         self.replicas = set()
+        self.host_name = socket.gethostname()
+        self.host_id = int(self.host_name[13:15])
     
     def __repr__(self):
         return "{ \n\t\"filename\" : \"" + self.filename + "\"\n\t\"replicas\" : " + str(self.replicas) + "\n}"
@@ -212,6 +216,17 @@ class NameNode:
         s.close()
         udp_socket.close()
 
+def listen_ack(id, done, host):
+    ack_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    localaddr = (socket.gethostname(), ACK_PORTS[id])
+    ack_socket.bind(localaddr)
+    ack_socket.settimeout(10)
+    try:
+        ack_socket.recvfrom(4096)
+        done["DONE"].add(host)
+    except:
+        done["FAIL"].add(host)
+
 def run(fd):
     name_node = NameNode(fd)
     name_node.initial_mode()
@@ -233,20 +248,26 @@ def run(fd):
                     print("Receive put request")
                     logging.info("Receive put request: " + args[1])
                     replicas = name_node.put_file(args[1])
-                    data = " ".join(replicas).encode("utf-8")
-                    
-                    if args[1] not in name_node.ft.files:
-                        name_node.ft.insert_file(args[1], replicas)
 
+                    ids = [int(r[13:15]) for r in replicas]
+                    done = defaultdict(set)
+                    threads = [threading.Thread(target=listen_ack, args=[id[i], done, args[1]]) for i in ids]
+                    for t in threads:
+                        t.start()
+
+                    data = " ".join(replicas).encode("utf-8")
                     s.sendto(data, client_addr)
-                    ack_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                    localaddr = (socket.gethostname(), ACK_PORT)
-                    ack_socket.bind(localaddr)
-                    ack_socket.settimeout(10)
-                    for _ in range(3):
-                        ack_socket.recvfrom(4096)
-                    s.sendto("finish".encode("utf-8"), client_addr)
-                    ack_socket.recvfrom(4096)
+                    
+                    while 1:
+                        if len(done["DONE"]) == 3:
+                            if args[1] not in name_node.ft.files:
+                                name_node.ft.insert_file(args[1], replicas)
+                            s.sendto("finish".encode("utf-8"), client_addr)
+                            break
+                        if (len(done["DONE"]) + len(done["FAIL"])) == len(replicas):
+                            s.sendto("fail".encode("utf-8"), client_addr)
+                            break
+                        time.sleep(0.2)
                     
                 elif args[0] == "get":
                     print("Receive get request")

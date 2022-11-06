@@ -8,6 +8,7 @@ import socket
 
 DATA_NODE_PORT = "4242"
 ACK_PORT = 4243
+ACK_PORTS = [5000 + i for i in range(10)]
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
@@ -18,6 +19,8 @@ logging.basicConfig(level=logging.INFO,
 class DataNode:
     def __init__(self):
         self.file_info = defaultdict(int)   # sdfs_filename -> version
+        self.host_name = socket.gethostname()
+        self.host_id = int(self.host_name[13:15])
     
     def get_namenode_host(self):
         return "fa22-cs425-2210.cs.illinois.edu"
@@ -43,7 +46,7 @@ class DataNode:
             c.close()
 
         ack = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        dst_addr = (self.get_namenode_host(), ACK_PORT)
+        dst_addr = (self.get_namenode_host(), ACK_PORTS[self.host_id])
         data = "ack"
         ack.sendto(data.encode("utf-8"), dst_addr)
         ack.close()
