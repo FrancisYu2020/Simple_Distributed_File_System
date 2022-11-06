@@ -39,11 +39,16 @@ class DataNode:
         f = open(filepath, "wb")
         f.write(content)
         f.close()
+        print("Try to forward to:")
+        logging.info("Try to forward")
+        print(replicas)
         if replicas:
             c = zerorpc.Client(timeout=30)
             c.connect("tcp://" + replicas[0] + ":" + DATA_NODE_PORT)
             c.put_file(sdfs_filename, content, replicas[1:])
             c.close()
+        logging.info("Forward end")
+        print("Forward end")
 
         ack = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         dst_addr = (self.get_namenode_host(), ACK_PORTS[self.host_id])
@@ -52,7 +57,7 @@ class DataNode:
         ack.close()
 
         self.file_info[sdfs_filename] += 1
-        logging.info("Put file " + filename + ", current version is " + str(self.file_info[sdfs_filename] + "And forward to " + str(replicas)))
+        logging.info("Put file " + filename + ", current version is " + str(self.file_info[sdfs_filename]))
 
     def get_file(self, sdfs_filename):
         print("Try to get file: " + sdfs_filename)
