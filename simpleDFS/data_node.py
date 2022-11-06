@@ -35,10 +35,13 @@ class DataNode:
         logging.info("Try to forward")
         print(replicas)
         if replicas:
-            c = zerorpc.Client(timeout=30)
-            c.connect("tcp://" + replicas[0] + ":" + DATA_NODE_PORT)
-            c.put_file(sdfs_filename, content, replicas[1:])
-            c.close()
+            try:
+                c = zerorpc.Client(timeout=30)
+                c.connect("tcp://" + replicas[0] + ":" + DATA_NODE_PORT)
+                c.put_file(sdfs_filename, content, replicas[1:])
+                c.close()
+            except Exception as e:
+                logging.error("Forward error " + str(e))
         print("Forward end")
         logging.info("Forward end")
 
