@@ -254,7 +254,7 @@ def run(fd):
 
                     ids = [int(r[13:15]) for r in replicas]
                     done = defaultdict(set)
-                    threads = [threading.Thread(target=listen_ack, args=[id, done, args[1]]) for id in ids]
+                    threads = [threading.Thread(target=listen_ack, args=[id, done, replicas[i]]) for i, id in enumerate(ids)]
                     for t in threads:
                         t.start()
 
