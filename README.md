@@ -12,7 +12,7 @@ You can clone this project to the machines you need to grep log from using follo
 ssh: git clone git@github.com:FrancisYu2020/Simple_Distributed_File_System.git
 ```
 ```
-https: git clone https://gitlab.engr.illinois.edu/hangy6/mp3-hangy6-tian23.git
+https://github.com/FrancisYu2020/Simple_Distributed_File_System.git
 ``` 
 
 ## Setup
