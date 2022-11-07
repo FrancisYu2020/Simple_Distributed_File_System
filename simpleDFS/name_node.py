@@ -10,7 +10,7 @@ import logging
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s.%(msecs)03d %(levelname)s {%(module)s} [%(funcName)s] %(message)s',
                     datefmt='%Y-%m-%d,%H:%M:%S',
-                    filename='Namenode.log',
+                    filename='log',
                     filemode='w')
 
 
@@ -98,7 +98,7 @@ class NameNode:
         '''
         Use heartbeat message to rebuild name node
         '''
-        print("Initial mode...")
+        # print("Initial mode...")
         logging.info("Initial Namenode...")
         for node in self.ml:
             c = zerorpc.Client()
@@ -115,9 +115,9 @@ class NameNode:
                     self.ft.update_replicas(file, node)
         logging.info("Cur Files: ")
         for file in self.ft.files.keys():
-            print(repr(self.ft.files[file]))
+            # print(repr(self.ft.files[file]))
             logging.info(repr(self.ft.files[file]))
-        print("Finsih initial mode!")
+        # print("Finsih initial mode!")
         logging.info("Finsih Initial Namenode.")
     
     def rreplica(self, need_num, cur_replicas, filename):
@@ -140,7 +140,7 @@ class NameNode:
         '''
         check all files to make sure all files have enough replicas
         '''
-        print("Safe checker is running...")
+        # print("Safe checker is running...")
         logging.info("Safe Checker start")
         while True:
             try:
@@ -170,15 +170,16 @@ class NameNode:
         if sdfs_name in self.ft.files:
             return " ".join(list(self.ft.files[sdfs_name].replicas))
         else:
-            print("No such file!")
+            # print("No such file!")
+            logging.warning("Cannot find " + sdfs_name)
             return
 
     def delete_file(self, sdfs_name):
         # logging.info("Namenode is deleting file: " + sdfs_name)
-        print("Namenode is deleting file: ", sdfs_name)
+        # print("Namenode is deleting file: ", sdfs_name)
         if sdfs_name not in self.ft.files:
-            print("No such file")
-            # logging.info("No such file")
+            # print("No such file")
+            logging.info("No such file")
             return
         replicas = self.ft.files[sdfs_name].replicas
         # print(replicas)
@@ -190,7 +191,7 @@ class NameNode:
                 c.close()
         except Exception as e:
             logging.error(str(e))
-            print(e)
+            # print(e)
             return False
         self.ft.delete_file(sdfs_name)
         return True
@@ -206,7 +207,8 @@ class NameNode:
         return c.heartbeat()
     
     def producer(self):
-        print("Producer is running")
+        # print("Producer is running")
+        logging.info("Producer start.")
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         localaddr = (socket.gethostname(), NAME_NODE_PORT)
         udp_socket.bind(localaddr)
@@ -277,14 +279,14 @@ def run(fd):
                     logging.info("Finish put request: " + args[1])
                     
                 elif args[0] == "get":
-                    print("Receive get request")
+                    # print("Receive get request")
                     logging.info("Receive get request: " + args[1])
                     data = name_node.get_file(args[1])
                     if not data:
                         data = ""
                     s.sendto(data.encode("utf-8"), client_addr)
                 elif args[0] == "delete":
-                    print("Receive delete request")
+                    # print("Receive delete request")
                     logging.info("Receive delete request: " + args[1])
                     if name_node.delete_file(args[1]):
                         data = "ack"
@@ -293,7 +295,7 @@ def run(fd):
                     s.sendto(data.encode("utf-8"), client_addr)
                     logging.info("Finish delete request: " + args[1])
                 elif args[0] == "ls":
-                    print("Receive ls request: " + args[1])
+                    # print("Receive ls request: " + args[1])
                     logging.info("Receive ls request: " + args[1])
                     data = name_node.ls(args[1])
                     if not data:

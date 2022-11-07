@@ -195,13 +195,21 @@ class Server:
 
     def shell(self):
         while 1:
+            print("=======================================================")
+            print("1. list_mem: list current membership list in the ring")
+            print("2. list_self: list current node")
+            print("3. join: join current node to the ring")
+            print("4. leave: leave current node from the ring")
+            print("5. help: show this usage prompt")
+            print("6. exit: shutdown this node")
+            print("=======================================================")
             print("Please input command:")
             command = input()
             if command == "list_mem":
                 with ML_lock:
                     print(self.ML)
-            elif command == "list_nb":
-                print(self.get_neighbors())
+            elif command == "list_self":
+                print(self.hostname)
             elif command == "join":
                 self.join()
             elif command == "leave":
@@ -209,7 +217,7 @@ class Server:
             elif command == "help":
                 print("=======================================================")
                 print("1. list_mem: list current membership list in the ring")
-                print("2. list_nb: list current neighbor list in current node")
+                print("2. list_self: list current node")
                 print("3. join: join current node to the ring")
                 print("4. leave: leave current node from the ring")
                 print("5. help: show this usage prompt")
@@ -226,11 +234,11 @@ class Server:
         tm.start()
         tn.start()
         t1.start()
-        print('all threads started!')
+        # print('all threads started!')
         tm.join()
-        print('tm join')
+        # print('tm join')
         tn.join()
-        print('tn join')
+        # print('tn join')
         t1.join()
-        print('t1 join')
-        print('t4 join')
+        # print('t1 join')
+        # print('t4 join')

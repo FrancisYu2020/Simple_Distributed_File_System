@@ -9,11 +9,11 @@ import socket
 DATA_NODE_PORT = "6242"
 ACK_PORTS = [6000 + i for i in range(11)]
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                    datefmt='%m-%d %H:%M',
-                    filename='Datanode.log',
-                    filemode='w')
+# logging.basicConfig(level=logging.INFO,
+#                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+#                     datefmt='%m-%d %H:%M',
+#                     filename='Datanode.log',
+#                     filemode='w')
 
 class DataNode:
     def __init__(self):

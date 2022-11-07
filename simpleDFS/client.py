@@ -188,7 +188,7 @@ class Client:
                         f = open(local_filename + ",v" + str(version), 'wb')
                         f.write(content)
                     elif version == -1:
-                        print("Not other previous version.")
+                        print("All versions are received, no other previous versions.")
                         return
                     elif version == -2:
                         print("Failed, please try again.")
