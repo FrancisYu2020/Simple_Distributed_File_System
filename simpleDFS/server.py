@@ -1,7 +1,6 @@
 import name_node
 import data_node
 import failure_detector
-import test_fd
 import threading
 import socket
     
