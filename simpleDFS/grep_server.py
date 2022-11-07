@@ -24,7 +24,7 @@ def grep(request):
     # put all files under current directory in a list
     files = [f for f in os.listdir('.') if os.path.isfile(f)]
     # filter to all *.log files
-    log_files = [f for f in files if f.endswith(args[3] + '.log')]
+    log_files = [f for f in files if f.endswith('log')]
     # iterate all log files
     for file in log_files:
         with open(file, encoding="utf-8") as f:
