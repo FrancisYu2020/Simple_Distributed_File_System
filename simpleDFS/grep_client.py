@@ -64,7 +64,7 @@ class Client:
         time_start = time.time()
         threads = []
         # change to 11 for grep all
-        for i in range(1,6):
+        for i in range(1,11):
             host = get_host(i)
             t = threading.Thread(target = self.client_program, args = (self.args, host, PORT))
             threads.append(t)

@@ -25,6 +25,7 @@ class DataNode:
         return "fa22-cs425-2210.cs.illinois.edu"
 
     def put_file(self, sdfs_filename, content, replicas):
+        sdfs_filename = "*".join(sdfs_filename.split("/"))
         forward_file_t = threading.Thread(target=self.forward_file, args=[sdfs_filename, content, replicas])
         forward_file_t.start()
         return
@@ -69,6 +70,7 @@ class DataNode:
 
     def get_file(self, sdfs_filename):
         print("Try to get file: " + sdfs_filename)
+        sdfs_filename = "*".join(sdfs_filename.split("/"))
         filepath = os.path.join(os.getcwd() + "/store", sdfs_filename + ",v" + str(self.file_info[sdfs_filename]))
         if not os.path.isfile(filepath):
             print("No file")
